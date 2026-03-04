@@ -14,29 +14,47 @@ import (
 const createUser = `-- name: CreateUser :one
 INSERT INTO users (
     full_name,
-    telegram,
     gender,
+    direction_vector,
+    study_group,
+    rating,
+    visited_events_count,
     phone_number,
+    telegram,
+    avatar_url,
+    role,
     telegram_id
 )
-VALUES ($1, $2, $3, $4, $5)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
 RETURNING id, full_name, gender, direction_vector, study_group, rating, visited_events_count, phone_number, telegram, avatar_url, join_date, role, telegram_id, created_at, updated_at
 `
 
 type CreateUserParams struct {
-	FullName    string      `json:"full_name"`
-	Telegram    string      `json:"telegram"`
-	Gender      pgtype.Text `json:"gender"`
-	PhoneNumber pgtype.Text `json:"phone_number"`
-	TelegramID  pgtype.Int4 `json:"telegram_id"`
+	FullName           string      `json:"full_name"`
+	Gender             pgtype.Text `json:"gender"`
+	DirectionVector    pgtype.Text `json:"direction_vector"`
+	StudyGroup         pgtype.Text `json:"study_group"`
+	Rating             pgtype.Int4 `json:"rating"`
+	VisitedEventsCount pgtype.Int4 `json:"visited_events_count"`
+	PhoneNumber        pgtype.Text `json:"phone_number"`
+	Telegram           string      `json:"telegram"`
+	AvatarUrl          pgtype.Text `json:"avatar_url"`
+	Role               pgtype.Text `json:"role"`
+	TelegramID         pgtype.Int4 `json:"telegram_id"`
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
 	row := q.db.QueryRow(ctx, createUser,
 		arg.FullName,
-		arg.Telegram,
 		arg.Gender,
+		arg.DirectionVector,
+		arg.StudyGroup,
+		arg.Rating,
+		arg.VisitedEventsCount,
 		arg.PhoneNumber,
+		arg.Telegram,
+		arg.AvatarUrl,
+		arg.Role,
 		arg.TelegramID,
 	)
 	var i User
@@ -137,4 +155,62 @@ func (q *Queries) ListUsers(ctx context.Context) ([]User, error) {
 		return nil, err
 	}
 	return items, nil
+}
+
+const updateUser = `-- name: UpdateUser :one
+UPDATE users
+SET full_name=$2, gender=$3, direction_vector=$4,study_group=$5,rating=$6,visited_events_count=$7,phone_number=$8,telegram=$9,avatar_url=$10,role=$11,telegram_id=$12
+WHERE id = $1
+RETURNING id, full_name, gender, direction_vector, study_group, rating, visited_events_count, phone_number, telegram, avatar_url, join_date, role, telegram_id, created_at, updated_at
+`
+
+type UpdateUserParams struct {
+	ID                 int32       `json:"id"`
+	FullName           string      `json:"full_name"`
+	Gender             pgtype.Text `json:"gender"`
+	DirectionVector    pgtype.Text `json:"direction_vector"`
+	StudyGroup         pgtype.Text `json:"study_group"`
+	Rating             pgtype.Int4 `json:"rating"`
+	VisitedEventsCount pgtype.Int4 `json:"visited_events_count"`
+	PhoneNumber        pgtype.Text `json:"phone_number"`
+	Telegram           string      `json:"telegram"`
+	AvatarUrl          pgtype.Text `json:"avatar_url"`
+	Role               pgtype.Text `json:"role"`
+	TelegramID         pgtype.Int4 `json:"telegram_id"`
+}
+
+func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error) {
+	row := q.db.QueryRow(ctx, updateUser,
+		arg.ID,
+		arg.FullName,
+		arg.Gender,
+		arg.DirectionVector,
+		arg.StudyGroup,
+		arg.Rating,
+		arg.VisitedEventsCount,
+		arg.PhoneNumber,
+		arg.Telegram,
+		arg.AvatarUrl,
+		arg.Role,
+		arg.TelegramID,
+	)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.FullName,
+		&i.Gender,
+		&i.DirectionVector,
+		&i.StudyGroup,
+		&i.Rating,
+		&i.VisitedEventsCount,
+		&i.PhoneNumber,
+		&i.Telegram,
+		&i.AvatarUrl,
+		&i.JoinDate,
+		&i.Role,
+		&i.TelegramID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
 }
