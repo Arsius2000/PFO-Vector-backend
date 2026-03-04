@@ -9,10 +9,15 @@ import (
 )
 
 type Querier interface {
+	CreateNews(ctx context.Context, arg CreateNewsParams) (News, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
+	DeleteNews(ctx context.Context, id int32) error
 	DeleteUser(ctx context.Context, id int32) error
+	GetNews(ctx context.Context, id int32) (News, error)
 	GetUser(ctx context.Context, id int32) (User, error)
+	ListNews(ctx context.Context) ([]News, error)
 	ListUsers(ctx context.Context) ([]User, error)
+	UpdateNews(ctx context.Context, arg UpdateNewsParams) (News, error)
 	UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error)
 }
 

@@ -32,8 +32,8 @@ type Event struct {
 type News struct {
 	ID               int32              `json:"id"`
 	Title            string             `json:"title"`
-	ShortDesсription string             `json:"short_desсription"`
-	FullDesсription  string             `json:"full_desсription"`
+	ShortDescription string             `json:"short_description"`
+	FullDescription  string             `json:"full_description"`
 	NewsDate         pgtype.Timestamp   `json:"news_date"`
 	CreatedAt        pgtype.Timestamptz `json:"created_at"`
 	CreatedBy        int32              `json:"created_by"`
