@@ -22,10 +22,9 @@ INSERT INTO users (
     phone_number,
     telegram,
     avatar_url,
-    role,
     telegram_id
 )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
 RETURNING id, full_name, gender, direction_vector, study_group, rating, visited_events_count, phone_number, telegram, avatar_url, join_date, role, telegram_id, created_at, updated_at
 `
 
@@ -39,7 +38,6 @@ type CreateUserParams struct {
 	PhoneNumber        pgtype.Text `json:"phone_number"`
 	Telegram           string      `json:"telegram"`
 	AvatarUrl          pgtype.Text `json:"avatar_url"`
-	Role               pgtype.Text `json:"role"`
 	TelegramID         pgtype.Int4 `json:"telegram_id"`
 }
 
@@ -54,7 +52,6 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 		arg.PhoneNumber,
 		arg.Telegram,
 		arg.AvatarUrl,
-		arg.Role,
 		arg.TelegramID,
 	)
 	var i User
