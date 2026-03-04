@@ -2,8 +2,8 @@
 CREATE TABLE IF NOT EXISTS news(
     id SERIAL PRIMARY KEY,
     title varchar(255) NOT NULL,
-    short_desription varchar(255) NOT NULL,
-    full_desription TEXT NOT NULL,
+    short_desсription varchar(255) NOT NULL,
+    full_desсription TEXT NOT NULL,
     news_date TIMESTAMP ,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     created_by INT NOT NULL,
