@@ -48,6 +48,7 @@ func main() {
     r := chi.NewRouter()
     
     r.Get("/users/{id}", userHandler.GetUser)
+	r.Delete("/users/{id}",userHandler.DeleteUser)
     
     log.Println("Server starting on :8080")
     log.Fatal(http.ListenAndServe(":8080", r))

@@ -13,12 +13,12 @@ import (
 
 
 type UserHandler struct{
-	quries *database.Queries
+	queries *database.Queries
 }
 
 func NewUserHandler(queries *database.Queries) *UserHandler{
 	return &UserHandler{
-		quries: queries,
+		queries: queries,
 	}
 }
 
@@ -33,7 +33,7 @@ func (h *UserHandler) GetUser(w http.ResponseWriter,r *http.Request){
         return
     }
 
-	user,err :=h.quries.GetUser(r.Context(),int32(id))
+	user,err :=h.queries.GetUser(r.Context(),int32(id))
 	if err == sql.ErrNoRows{
 		http.Error(w,"User not found",http.StatusNotFound)
 		return
@@ -64,5 +64,29 @@ func (h *UserHandler) GetUser(w http.ResponseWriter,r *http.Request){
 	w.Header().Set("Content-Type", "application/json")
     json.NewEncoder(w).Encode(response)
 		
+}
+
+//DELETE /users/{id}
+func (h *UserHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
+
+    idStr := chi.URLParam(r, "id")  // "1"
+    
+    id, err := strconv.ParseInt(idStr, 10, 32)
+    if err != nil {
+        http.Error(w, "Invalid ID", http.StatusBadRequest)
+        return
+    }
+    
+    err = h.queries.DeleteUser(r.Context(), int32(id))  // Выполняем DELETE
+    if err == sql.ErrNoRows {
+        http.Error(w, "User not found", http.StatusNotFound)
+        return
+    }
+    if err != nil {
+        http.Error(w, "Failed to delete user", http.StatusInternalServerError)
+        return
+    }
+    
+    w.WriteHeader(http.StatusNoContent)  // 204 — успешно, но без тела ответа
 }
 
