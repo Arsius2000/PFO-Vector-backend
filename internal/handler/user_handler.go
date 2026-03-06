@@ -6,17 +6,17 @@ import (
 	"net/http"
 	"strconv"
 
-	"pfo-vector/internal/database"
+	"pfo-vector/internal/repository"
 
 	"github.com/go-chi/chi/v5"
 )
 
 
 type UserHandler struct{
-	queries *database.Queries
+	queries *repository.Queries
 }
 
-func NewUserHandler(queries *database.Queries) *UserHandler{
+func NewUserHandler(queries *repository.Queries) *UserHandler{
 	return &UserHandler{
 		queries: queries,
 	}
@@ -44,7 +44,7 @@ func (h *UserHandler) GetUser(w http.ResponseWriter,r *http.Request){
 
 
 	//конвертация в response модель
-	response := database.User{
+	response := repository.User{
 		ID:int32(user.ID),
 		FullName: user.FullName,
 		Gender: user.Gender,

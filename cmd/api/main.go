@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"os"
 
-	db "pfo-vector/internal/database"
+	db "pfo-vector/internal/repository"
 	"pfo-vector/internal/handler"
 
 	"github.com/go-chi/chi/v5"
@@ -44,7 +44,7 @@ func main() {
 	}
 	log.Printf("Created: %+v\n", newUser)
     
-    
+    //РУЧКИ
     r := chi.NewRouter()
     
     r.Get("/users/{id}", userHandler.GetUser)
