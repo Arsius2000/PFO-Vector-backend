@@ -25,7 +25,7 @@ INSERT INTO users (
     telegram_id
 )
 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-RETURNING id, full_name, gender, direction_vector, study_group, rating, visited_events_count, phone_number, telegram, avatar_url, join_date, role, telegram_id, created_at, updated_at
+RETURNING id, full_name, gender, direction_vector, study_group, rating, visited_events_count, phone_number, telegram, avatar_url, join_date, role, telegram_id
 `
 
 type CreateUserParams struct {
@@ -69,8 +69,6 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 		&i.JoinDate,
 		&i.Role,
 		&i.TelegramID,
-		&i.CreatedAt,
-		&i.UpdatedAt,
 	)
 	return i, err
 }
@@ -86,7 +84,7 @@ func (q *Queries) DeleteUser(ctx context.Context, id int32) error {
 }
 
 const getUser = `-- name: GetUser :one
-SELECT id, full_name, gender, direction_vector, study_group, rating, visited_events_count, phone_number, telegram, avatar_url, join_date, role, telegram_id, created_at, updated_at FROM users
+SELECT id, full_name, gender, direction_vector, study_group, rating, visited_events_count, phone_number, telegram, avatar_url, join_date, role, telegram_id FROM users
 WHERE id = $1
 `
 
@@ -107,19 +105,17 @@ func (q *Queries) GetUser(ctx context.Context, id int32) (User, error) {
 		&i.JoinDate,
 		&i.Role,
 		&i.TelegramID,
-		&i.CreatedAt,
-		&i.UpdatedAt,
 	)
 	return i, err
 }
 
-const listUsers = `-- name: ListUsers :many
-SELECT id, full_name, gender, direction_vector, study_group, rating, visited_events_count, phone_number, telegram, avatar_url, join_date, role, telegram_id, created_at, updated_at FROM users
-ORDER BY created_at DESC
+const listUsersId = `-- name: ListUsersId :many
+SELECT id, full_name, gender, direction_vector, study_group, rating, visited_events_count, phone_number, telegram, avatar_url, join_date, role, telegram_id FROM users
+ORDER BY id DESC
 `
 
-func (q *Queries) ListUsers(ctx context.Context) ([]User, error) {
-	rows, err := q.db.Query(ctx, listUsers)
+func (q *Queries) ListUsersId(ctx context.Context) ([]User, error) {
+	rows, err := q.db.Query(ctx, listUsersId)
 	if err != nil {
 		return nil, err
 	}
@@ -141,8 +137,84 @@ func (q *Queries) ListUsers(ctx context.Context) ([]User, error) {
 			&i.JoinDate,
 			&i.Role,
 			&i.TelegramID,
-			&i.CreatedAt,
-			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listUsersName = `-- name: ListUsersName :many
+SELECT id, full_name, gender, direction_vector, study_group, rating, visited_events_count, phone_number, telegram, avatar_url, join_date, role, telegram_id FROM users
+ORDER BY full_name DESC
+`
+
+func (q *Queries) ListUsersName(ctx context.Context) ([]User, error) {
+	rows, err := q.db.Query(ctx, listUsersName)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []User{}
+	for rows.Next() {
+		var i User
+		if err := rows.Scan(
+			&i.ID,
+			&i.FullName,
+			&i.Gender,
+			&i.DirectionVector,
+			&i.StudyGroup,
+			&i.Rating,
+			&i.VisitedEventsCount,
+			&i.PhoneNumber,
+			&i.Telegram,
+			&i.AvatarUrl,
+			&i.JoinDate,
+			&i.Role,
+			&i.TelegramID,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listUsersRating = `-- name: ListUsersRating :many
+SELECT id, full_name, gender, direction_vector, study_group, rating, visited_events_count, phone_number, telegram, avatar_url, join_date, role, telegram_id FROM users
+ORDER BY rating DESC
+`
+
+func (q *Queries) ListUsersRating(ctx context.Context) ([]User, error) {
+	rows, err := q.db.Query(ctx, listUsersRating)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []User{}
+	for rows.Next() {
+		var i User
+		if err := rows.Scan(
+			&i.ID,
+			&i.FullName,
+			&i.Gender,
+			&i.DirectionVector,
+			&i.StudyGroup,
+			&i.Rating,
+			&i.VisitedEventsCount,
+			&i.PhoneNumber,
+			&i.Telegram,
+			&i.AvatarUrl,
+			&i.JoinDate,
+			&i.Role,
+			&i.TelegramID,
 		); err != nil {
 			return nil, err
 		}
@@ -158,7 +230,7 @@ const updateUser = `-- name: UpdateUser :one
 UPDATE users
 SET full_name=$2, gender=$3, direction_vector=$4,study_group=$5,rating=$6,visited_events_count=$7,phone_number=$8,telegram=$9,avatar_url=$10,role=$11,telegram_id=$12
 WHERE id = $1
-RETURNING id, full_name, gender, direction_vector, study_group, rating, visited_events_count, phone_number, telegram, avatar_url, join_date, role, telegram_id, created_at, updated_at
+RETURNING id, full_name, gender, direction_vector, study_group, rating, visited_events_count, phone_number, telegram, avatar_url, join_date, role, telegram_id
 `
 
 type UpdateUserParams struct {
@@ -206,8 +278,6 @@ func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, e
 		&i.JoinDate,
 		&i.Role,
 		&i.TelegramID,
-		&i.CreatedAt,
-		&i.UpdatedAt,
 	)
 	return i, err
 }

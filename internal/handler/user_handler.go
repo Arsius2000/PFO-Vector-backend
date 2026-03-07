@@ -57,8 +57,6 @@ func (h *UserHandler) GetUser(w http.ResponseWriter,r *http.Request){
 		JoinDate: user.JoinDate,
 		Role: user.Role,
 		TelegramID: user.TelegramID,
-		CreatedAt: user.CreatedAt,
-		UpdatedAt: user.UpdatedAt,
 
 	}
 	w.Header().Set("Content-Type", "application/json")

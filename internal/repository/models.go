@@ -62,8 +62,6 @@ type User struct {
 	JoinDate           pgtype.Timestamptz `json:"join_date"`
 	Role               pgtype.Text        `json:"role"`
 	TelegramID         pgtype.Int4        `json:"telegram_id"`
-	CreatedAt          pgtype.Timestamptz `json:"created_at"`
-	UpdatedAt          pgtype.Timestamptz `json:"updated_at"`
 }
 
 type UserAchievement struct {

@@ -18,9 +18,17 @@ RETURNING *;
 SELECT * FROM users
 WHERE id = $1;
 
--- name: ListUsers :many
+-- name: ListUsersId :many
 SELECT * FROM users
-ORDER BY created_at DESC;
+ORDER BY id DESC;
+
+-- name: ListUsersName :many
+SELECT * FROM users
+ORDER BY full_name DESC;
+
+-- name: ListUsersRating :many
+SELECT * FROM users
+ORDER BY rating DESC;
 
 -- name: UpdateUser :one
 UPDATE users
