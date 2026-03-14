@@ -43,15 +43,6 @@ func main() {
 
 	queries := db.New(pool)
     userHandler := handler.NewUserHandler(queries)
-	newUser, err := queries.CreateUser(ctx, db.CreateUserParams{
-		FullName: "Иван Иванов",
-		Telegram : "@arsius2902",
-		      
-	})
-	if err != nil {
-		log.Fatal(err)
-	}
-	log.Printf("Created: %+v\n", newUser)
     
     //РУЧКИ
     r := chi.NewRouter()
