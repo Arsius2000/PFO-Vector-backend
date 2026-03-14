@@ -22,7 +22,16 @@ func NewUserHandler(queries *repository.Queries) *UserHandler{
 	}
 }
 
-//Get /users/{id}
+// GetUser godoc
+// @Summary      Получение пользователя
+// @Description  Возвращает данные пользователя по ID
+// @Tags         users
+// @Accept       json
+// @Produce      json
+// @Param        id   path      int  true  "ID пользователя"
+// @Success      200  {object}  repository.User
+// @Failure      404  {string}  string  "Пользователь не найден"
+// @Router       /users/{id} [get]
 func (h *UserHandler) GetUser(w http.ResponseWriter,r *http.Request){
 
     idStr := chi.URLParam(r, "id")  // "1"
@@ -65,8 +74,16 @@ func (h *UserHandler) GetUser(w http.ResponseWriter,r *http.Request){
 }
 
 
-
-//DELETE /users/{id}
+// DeleteUser godoc
+// @Summary      Удаление пользователя
+// @Description  Удаляет пользователя по ID
+// @Tags         users
+// @Accept       json
+// @Produce      json
+// @Param        id   path      int  true  "ID пользователя"
+// @Success      200  {object}  repository.User
+// @Failure      404  {string}  string  "Пользователь не найден"
+// @Router       /users/{id} [delete]
 func (h *UserHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 
     idStr := chi.URLParam(r, "id")  // "1"

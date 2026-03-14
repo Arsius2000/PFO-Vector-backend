@@ -48,6 +48,8 @@ type Notification struct {
 	CreatedAt        pgtype.Timestamptz `json:"created_at"`
 }
 
+// User представляет пользователя системы
+// @Description Модель пользователя
 type User struct {
 	ID                 int32              `json:"id"`
 	FullName           string             `json:"full_name"`

@@ -1,0 +1,126 @@
+basePath: /
+definitions:
+  pfo-vector_internal_repository.User:
+    description: Модель пользователя
+    properties:
+      avatar_url:
+        $ref: '#/definitions/pgtype.Text'
+      direction_vector:
+        $ref: '#/definitions/pgtype.Text'
+      full_name:
+        type: string
+      gender:
+        $ref: '#/definitions/pgtype.Text'
+      id:
+        type: integer
+      join_date:
+        $ref: '#/definitions/pgtype.Timestamptz'
+      phone_number:
+        $ref: '#/definitions/pgtype.Text'
+      rating:
+        $ref: '#/definitions/pgtype.Int4'
+      role:
+        $ref: '#/definitions/pgtype.Text'
+      study_group:
+        $ref: '#/definitions/pgtype.Text'
+      telegram:
+        type: string
+      telegram_id:
+        $ref: '#/definitions/pgtype.Int4'
+      visited_events_count:
+        $ref: '#/definitions/pgtype.Int4'
+    type: object
+  pgtype.InfinityModifier:
+    enum:
+    - 1
+    - 0
+    - -1
+    format: int32
+    type: integer
+    x-enum-varnames:
+    - Infinity
+    - Finite
+    - NegativeInfinity
+  pgtype.Int4:
+    properties:
+      int32:
+        format: int32
+        type: integer
+      valid:
+        type: boolean
+    type: object
+  pgtype.Text:
+    properties:
+      string:
+        type: string
+      valid:
+        type: boolean
+    type: object
+  pgtype.Timestamptz:
+    properties:
+      infinityModifier:
+        $ref: '#/definitions/pgtype.InfinityModifier'
+      time:
+        type: string
+      valid:
+        type: boolean
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: API сервер для управления пользователями
+  title: My Project API
+  version: "1.0"
+paths:
+  /users/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Удаляет пользователя по ID
+      parameters:
+      - description: ID пользователя
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/pfo-vector_internal_repository.User'
+        "404":
+          description: Пользователь не найден
+          schema:
+            type: string
+      summary: Удаление пользователя
+      tags:
+      - users
+    get:
+      consumes:
+      - application/json
+      description: Возвращает данные пользователя по ID
+      parameters:
+      - description: ID пользователя
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/pfo-vector_internal_repository.User'
+        "404":
+          description: Пользователь не найден
+          schema:
+            type: string
+      summary: Получение пользователя
+      tags:
+      - users
+schemes:
+- http
+swagger: "2.0"

@@ -14,8 +14,17 @@ import (
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/jackc/pgx/v5/pgxpool"
+
+
+	httpSwagger "github.com/swaggo/http-swagger/v2"
 )
 
+// @title           My Project API
+// @version         1.0
+// @description     API сервер для управления пользователями
+// @host            localhost:8080
+// @BasePath        /
+// @schemes         http
 func main() {
 	ctx := context.Background()
     dbURL := os.Getenv("DATABASE_URL")
@@ -50,6 +59,20 @@ func main() {
     r.Get("/users/{id}", userHandler.GetUser)
 	r.Delete("/users/{id}",userHandler.DeleteUser)
     
+	// --- Подключение Swagger ---
+	// Маршрут для Swagger UI будет доступен по адресу http://localhost:8080/swagger/index.html
+	r.Get("/swagger/*", httpSwagger.Handler(
+		httpSwagger.URL("/swagger/doc.json"), // URL где лежит json файл
+		httpSwagger.DeepLinking(true),
+		httpSwagger.DocExpansion("none"),
+
+	))
+	
+	// Явный маршрут для JSON файла (если httpSwagger не подхватит автоматически)
+	r.Get("/swagger/doc.json", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "./docs/swagger.json")
+	})
+
     log.Println("Server starting on :8080")
     log.Fatal(http.ListenAndServe(":8080", r))
    

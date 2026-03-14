@@ -1,0 +1,188 @@
+{
+    "schemes": [
+        "http"
+    ],
+    "swagger": "2.0",
+    "info": {
+        "description": "API сервер для управления пользователями",
+        "title": "My Project API",
+        "contact": {},
+        "version": "1.0"
+    },
+    "host": "localhost:8080",
+    "basePath": "/",
+    "paths": {
+        "/users/{id}": {
+            "get": {
+                "description": "Возвращает данные пользователя по ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Получение пользователя",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID пользователя",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/pfo-vector_internal_repository.User"
+                        }
+                    },
+                    "404": {
+                        "description": "Пользователь не найден",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Удаляет пользователя по ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Удаление пользователя",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID пользователя",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/pfo-vector_internal_repository.User"
+                        }
+                    },
+                    "404": {
+                        "description": "Пользователь не найден",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "pfo-vector_internal_repository.User": {
+            "description": "Модель пользователя",
+            "type": "object",
+            "properties": {
+                "avatar_url": {
+                    "$ref": "#/definitions/pgtype.Text"
+                },
+                "direction_vector": {
+                    "$ref": "#/definitions/pgtype.Text"
+                },
+                "full_name": {
+                    "type": "string"
+                },
+                "gender": {
+                    "$ref": "#/definitions/pgtype.Text"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "join_date": {
+                    "$ref": "#/definitions/pgtype.Timestamptz"
+                },
+                "phone_number": {
+                    "$ref": "#/definitions/pgtype.Text"
+                },
+                "rating": {
+                    "$ref": "#/definitions/pgtype.Int4"
+                },
+                "role": {
+                    "$ref": "#/definitions/pgtype.Text"
+                },
+                "study_group": {
+                    "$ref": "#/definitions/pgtype.Text"
+                },
+                "telegram": {
+                    "type": "string"
+                },
+                "telegram_id": {
+                    "$ref": "#/definitions/pgtype.Int4"
+                },
+                "visited_events_count": {
+                    "$ref": "#/definitions/pgtype.Int4"
+                }
+            }
+        },
+        "pgtype.InfinityModifier": {
+            "type": "integer",
+            "format": "int32",
+            "enum": [
+                1,
+                0,
+                -1
+            ],
+            "x-enum-varnames": [
+                "Infinity",
+                "Finite",
+                "NegativeInfinity"
+            ]
+        },
+        "pgtype.Int4": {
+            "type": "object",
+            "properties": {
+                "int32": {
+                    "type": "integer",
+                    "format": "int32"
+                },
+                "valid": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "pgtype.Text": {
+            "type": "object",
+            "properties": {
+                "string": {
+                    "type": "string"
+                },
+                "valid": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "pgtype.Timestamptz": {
+            "type": "object",
+            "properties": {
+                "infinityModifier": {
+                    "$ref": "#/definitions/pgtype.InfinityModifier"
+                },
+                "time": {
+                    "type": "string"
+                },
+                "valid": {
+                    "type": "boolean"
+                }
+            }
+        }
+    }
+}
