@@ -228,29 +228,39 @@ func (q *Queries) ListUsersRating(ctx context.Context) ([]User, error) {
 
 const updateUser = `-- name: UpdateUser :one
 UPDATE users
-SET full_name=$2, gender=$3, direction_vector=$4,study_group=$5,rating=$6,visited_events_count=$7,phone_number=$8,telegram=$9,avatar_url=$10,role=$11,telegram_id=$12
-WHERE id = $1
+SET 
+    full_name = COALESCE($1, full_name),
+    gender = COALESCE($2, gender),
+    direction_vector = COALESCE($3, direction_vector),
+    study_group = COALESCE($4, study_group),
+    rating = COALESCE($5, rating),
+    visited_events_count = COALESCE($6, visited_events_count),
+    phone_number = COALESCE($7, phone_number),
+    telegram = COALESCE($8, telegram),
+    avatar_url = COALESCE($9, avatar_url),
+    role = COALESCE($10, role),
+    telegram_id = COALESCE($11, telegram_id)
+WHERE id = $12
 RETURNING id, full_name, gender, direction_vector, study_group, rating, visited_events_count, phone_number, telegram, avatar_url, join_date, role, telegram_id
 `
 
 type UpdateUserParams struct {
-	ID                 int32       `json:"id"`
-	FullName           string      `json:"full_name"`
+	FullName           pgtype.Text `json:"full_name"`
 	Gender             pgtype.Text `json:"gender"`
 	DirectionVector    pgtype.Text `json:"direction_vector"`
 	StudyGroup         pgtype.Text `json:"study_group"`
 	Rating             pgtype.Int4 `json:"rating"`
 	VisitedEventsCount pgtype.Int4 `json:"visited_events_count"`
 	PhoneNumber        pgtype.Text `json:"phone_number"`
-	Telegram           string      `json:"telegram"`
+	Telegram           pgtype.Text `json:"telegram"`
 	AvatarUrl          pgtype.Text `json:"avatar_url"`
 	Role               pgtype.Text `json:"role"`
 	TelegramID         pgtype.Int4 `json:"telegram_id"`
+	ID                 int32       `json:"id"`
 }
 
 func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error) {
 	row := q.db.QueryRow(ctx, updateUser,
-		arg.ID,
 		arg.FullName,
 		arg.Gender,
 		arg.DirectionVector,
@@ -262,6 +272,7 @@ func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, e
 		arg.AvatarUrl,
 		arg.Role,
 		arg.TelegramID,
+		arg.ID,
 	)
 	var i User
 	err := row.Scan(

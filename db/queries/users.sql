@@ -32,8 +32,19 @@ ORDER BY rating DESC;
 
 -- name: UpdateUser :one
 UPDATE users
-SET full_name=$2, gender=$3, direction_vector=$4,study_group=$5,rating=$6,visited_events_count=$7,phone_number=$8,telegram=$9,avatar_url=$10,role=$11,telegram_id=$12
-WHERE id = $1
+SET 
+    full_name = COALESCE(sqlc.narg('full_name'), full_name),
+    gender = COALESCE(sqlc.narg('gender'), gender),
+    direction_vector = COALESCE(sqlc.narg('direction_vector'), direction_vector),
+    study_group = COALESCE(sqlc.narg('study_group'), study_group),
+    rating = COALESCE(sqlc.narg('rating'), rating),
+    visited_events_count = COALESCE(sqlc.narg('visited_events_count'), visited_events_count),
+    phone_number = COALESCE(sqlc.narg('phone_number'), phone_number),
+    telegram = COALESCE(sqlc.narg('telegram'), telegram),
+    avatar_url = COALESCE(sqlc.narg('avatar_url'), avatar_url),
+    role = COALESCE(sqlc.narg('role'), role),
+    telegram_id = COALESCE(sqlc.narg('telegram_id'), telegram_id)
+WHERE id = sqlc.arg('id')
 RETURNING *;
 
 -- name: DeleteUser :exec
