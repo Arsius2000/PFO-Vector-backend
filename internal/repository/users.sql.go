@@ -110,12 +110,20 @@ func (q *Queries) GetUser(ctx context.Context, id int32) (User, error) {
 }
 
 const listUsersId = `-- name: ListUsersId :many
-SELECT id, full_name, gender, direction_vector, study_group, rating, visited_events_count, phone_number, telegram, avatar_url, join_date, role, telegram_id FROM users
-ORDER BY id DESC
+SELECT id, full_name, gender, direction_vector, study_group, rating, visited_events_count, phone_number, telegram, avatar_url, join_date, role, telegram_id
+FROM users
+ORDER BY id ASC 
+LIMIT $2
+OFFSET $1
 `
 
-func (q *Queries) ListUsersId(ctx context.Context) ([]User, error) {
-	rows, err := q.db.Query(ctx, listUsersId)
+type ListUsersIdParams struct {
+	Offset int64 `json:"offset"`
+	Limit  int64 `json:"limit"`
+}
+
+func (q *Queries) ListUsersId(ctx context.Context, arg ListUsersIdParams) ([]User, error) {
+	rows, err := q.db.Query(ctx, listUsersId, arg.Offset, arg.Limit)
 	if err != nil {
 		return nil, err
 	}
@@ -149,12 +157,20 @@ func (q *Queries) ListUsersId(ctx context.Context) ([]User, error) {
 }
 
 const listUsersName = `-- name: ListUsersName :many
-SELECT id, full_name, gender, direction_vector, study_group, rating, visited_events_count, phone_number, telegram, avatar_url, join_date, role, telegram_id FROM users
-ORDER BY full_name DESC
+SELECT id, full_name, gender, direction_vector, study_group, rating, visited_events_count, phone_number, telegram, avatar_url, join_date, role, telegram_id
+FROM users
+ORDER BY full_name ASC 
+LIMIT $2
+OFFSET $1
 `
 
-func (q *Queries) ListUsersName(ctx context.Context) ([]User, error) {
-	rows, err := q.db.Query(ctx, listUsersName)
+type ListUsersNameParams struct {
+	Offset int64 `json:"offset"`
+	Limit  int64 `json:"limit"`
+}
+
+func (q *Queries) ListUsersName(ctx context.Context, arg ListUsersNameParams) ([]User, error) {
+	rows, err := q.db.Query(ctx, listUsersName, arg.Offset, arg.Limit)
 	if err != nil {
 		return nil, err
 	}
@@ -188,12 +204,20 @@ func (q *Queries) ListUsersName(ctx context.Context) ([]User, error) {
 }
 
 const listUsersRating = `-- name: ListUsersRating :many
-SELECT id, full_name, gender, direction_vector, study_group, rating, visited_events_count, phone_number, telegram, avatar_url, join_date, role, telegram_id FROM users
-ORDER BY rating DESC
+SELECT id, full_name, gender, direction_vector, study_group, rating, visited_events_count, phone_number, telegram, avatar_url, join_date, role, telegram_id
+FROM users
+ORDER BY rating ASC 
+LIMIT $2
+OFFSET $1
 `
 
-func (q *Queries) ListUsersRating(ctx context.Context) ([]User, error) {
-	rows, err := q.db.Query(ctx, listUsersRating)
+type ListUsersRatingParams struct {
+	Offset int64 `json:"offset"`
+	Limit  int64 `json:"limit"`
+}
+
+func (q *Queries) ListUsersRating(ctx context.Context, arg ListUsersRatingParams) ([]User, error) {
+	rows, err := q.db.Query(ctx, listUsersRating, arg.Offset, arg.Limit)
 	if err != nil {
 		return nil, err
 	}

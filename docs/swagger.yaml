@@ -1,7 +1,33 @@
 basePath: /
 definitions:
+  internal_handler.CreateUserRequest:
+    properties:
+      avatar_url:
+        type: string
+      direction_vector:
+        type: string
+      full_name:
+        type: string
+      gender:
+        type: string
+      phone_number:
+        type: string
+      rating:
+        description: Если nil -> БД поставит 0
+        type: integer
+      study_group:
+        type: string
+      telegram:
+        description: Обязательно (NOT NULL в БД)
+        type: string
+      telegram_id:
+        description: UNIQUE в БД
+        type: integer
+      visited_events_count:
+        description: Если nil -> БД поставит 0
+        type: integer
+    type: object
   pfo-vector_internal_repository.User:
-    description: Модель пользователя
     properties:
       avatar_url:
         $ref: '#/definitions/pgtype.Text'
@@ -119,6 +145,97 @@ paths:
           schema:
             type: string
       summary: Получение пользователя
+      tags:
+      - users
+  /users/add:
+    post:
+      consumes:
+      - application/json
+      description: Создает нового пользователя с переданными данными
+      parameters:
+      - description: Данные пользователя
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/internal_handler.CreateUserRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Пользователь успешно создан
+          schema:
+            $ref: '#/definitions/pfo-vector_internal_repository.User'
+        "400":
+          description: Неверный формат запроса или валидация не пройдена
+          schema:
+            type: string
+        "409":
+          description: Пользователь с таким telegram_id уже существует
+          schema:
+            type: string
+        "500":
+          description: Ошибка сервера
+          schema:
+            type: string
+      summary: Создание пользователя
+      tags:
+      - users
+  /users/all:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает данные пользователей по ID
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/pfo-vector_internal_repository.User'
+        "404":
+          description: Ошибка получения списка пользователей
+          schema:
+            type: string
+      summary: Получение всех пользователей
+      tags:
+      - users
+  /users/all/Name:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает данные пользователей по Full_name
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/pfo-vector_internal_repository.User'
+        "404":
+          description: Ошибка получения списка пользователей
+          schema:
+            type: string
+      summary: Получение всех пользователей
+      tags:
+      - users
+  /users/all/Rating:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает данные пользователей по Rating
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/pfo-vector_internal_repository.User'
+        "404":
+          description: Ошибка получения списка пользователей
+          schema:
+            type: string
+      summary: Получение всех пользователей
       tags:
       - users
 schemes:

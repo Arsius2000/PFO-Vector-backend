@@ -19,16 +19,25 @@ SELECT * FROM users
 WHERE id = $1;
 
 -- name: ListUsersId :many
-SELECT * FROM users
-ORDER BY id DESC;
+SELECT *
+FROM users
+ORDER BY id ASC 
+LIMIT sqlc.arg('limit')
+OFFSET sqlc.arg('offset');
 
 -- name: ListUsersName :many
-SELECT * FROM users
-ORDER BY full_name DESC;
+SELECT *
+FROM users
+ORDER BY full_name ASC 
+LIMIT sqlc.arg('limit')
+OFFSET sqlc.arg('offset');
 
 -- name: ListUsersRating :many
-SELECT * FROM users
-ORDER BY rating DESC;
+SELECT *
+FROM users
+ORDER BY rating ASC 
+LIMIT sqlc.arg('limit')
+OFFSET sqlc.arg('offset');
 
 -- name: UpdateUser :one
 UPDATE users

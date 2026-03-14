@@ -15,6 +15,145 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/users/add": {
+            "post": {
+                "description": "Создает нового пользователя с переданными данными",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Создание пользователя",
+                "parameters": [
+                    {
+                        "description": "Данные пользователя",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_handler.CreateUserRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Пользователь успешно создан",
+                        "schema": {
+                            "$ref": "#/definitions/pfo-vector_internal_repository.User"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный формат запроса или валидация не пройдена",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "409": {
+                        "description": "Пользователь с таким telegram_id уже существует",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка сервера",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/all": {
+            "get": {
+                "description": "Возвращает данные пользователей по ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Получение всех пользователей",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/pfo-vector_internal_repository.User"
+                        }
+                    },
+                    "404": {
+                        "description": "Ошибка получения списка пользователей",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/all/Name": {
+            "get": {
+                "description": "Возвращает данные пользователей по Full_name",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Получение всех пользователей",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/pfo-vector_internal_repository.User"
+                        }
+                    },
+                    "404": {
+                        "description": "Ошибка получения списка пользователей",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/all/Rating": {
+            "get": {
+                "description": "Возвращает данные пользователей по Rating",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Получение всех пользователей",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/pfo-vector_internal_repository.User"
+                        }
+                    },
+                    "404": {
+                        "description": "Ошибка получения списка пользователей",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/users/{id}": {
             "get": {
                 "description": "Возвращает данные пользователя по ID",
@@ -91,8 +230,46 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "internal_handler.CreateUserRequest": {
+            "type": "object",
+            "properties": {
+                "avatar_url": {
+                    "type": "string"
+                },
+                "direction_vector": {
+                    "type": "string"
+                },
+                "full_name": {
+                    "type": "string"
+                },
+                "gender": {
+                    "type": "string"
+                },
+                "phone_number": {
+                    "type": "string"
+                },
+                "rating": {
+                    "description": "Если nil -\u003e БД поставит 0",
+                    "type": "integer"
+                },
+                "study_group": {
+                    "type": "string"
+                },
+                "telegram": {
+                    "description": "Обязательно (NOT NULL в БД)",
+                    "type": "string"
+                },
+                "telegram_id": {
+                    "description": "UNIQUE в БД",
+                    "type": "integer"
+                },
+                "visited_events_count": {
+                    "description": "Если nil -\u003e БД поставит 0",
+                    "type": "integer"
+                }
+            }
+        },
         "pfo-vector_internal_repository.User": {
-            "description": "Модель пользователя",
             "type": "object",
             "properties": {
                 "avatar_url": {

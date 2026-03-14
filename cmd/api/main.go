@@ -55,10 +55,16 @@ func main() {
     
     //РУЧКИ
     r := chi.NewRouter()
-    
+
+    r.Post("/users/add", userHandler.CreateUser)
+
     r.Get("/users/{id}", userHandler.GetUser)
+	
+	r.Get("/users/all",userHandler.ListUsersId)
+	r.Get("/users/all/Name",userHandler.ListUsersName)
+    r.Get("/users/all/Rating",userHandler.ListUsersRating)
+
 	r.Delete("/users/{id}",userHandler.DeleteUser)
-    
 	// --- Подключение Swagger ---
 	// Маршрут для Swagger UI будет доступен по адресу http://localhost:8080/swagger/index.html
 	r.Get("/swagger/*", httpSwagger.Handler(
