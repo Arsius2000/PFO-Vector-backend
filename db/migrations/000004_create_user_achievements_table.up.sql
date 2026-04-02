@@ -1,3 +1,4 @@
+--Создаем таблицу
 CREATE TABLE  IF NOT EXISTS user_achievements(
     id SERIAL PRIMARY KEY,
     user_id INT NOT NULL,
@@ -13,6 +14,7 @@ CREATE TABLE  IF NOT EXISTS user_achievements(
     --связываем таблицу user_achievements и achievements
     CONSTRAINT fk_achievements_achievement_id
         FOREIGN KEY (achievement_id) REFERENCES achievements(id)
+ 
 
 
 

@@ -40,7 +40,7 @@
                     "201": {
                         "description": "Пользователь успешно создан",
                         "schema": {
-                            "$ref": "#/definitions/pfo-vector_internal_repository.User"
+                            "$ref": "#/definitions/pfo-vector_internal_model.UserResponse"
                         }
                     },
                     "400": {
@@ -77,11 +77,30 @@
                     "users"
                 ],
                 "summary": "Получение всех пользователей",
+                "parameters": [
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Номер страницы",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "maximum": 100,
+                        "minimum": 1,
+                        "type": "integer",
+                        "default": 20,
+                        "description": "Размер страницы",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Данные пользователей с пагинацией",
                         "schema": {
-                            "$ref": "#/definitions/pfo-vector_internal_repository.User"
+                            "$ref": "#/definitions/pfo-vector_internal_model.UserListResponse"
                         }
                     },
                     "404": {
@@ -106,11 +125,30 @@
                     "users"
                 ],
                 "summary": "Получение всех пользователей",
+                "parameters": [
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Номер страницы",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "maximum": 100,
+                        "minimum": 1,
+                        "type": "integer",
+                        "default": 20,
+                        "description": "Размер страницы",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Данные пользователей с пагинацией",
                         "schema": {
-                            "$ref": "#/definitions/pfo-vector_internal_repository.User"
+                            "$ref": "#/definitions/pfo-vector_internal_model.UserListResponse"
                         }
                     },
                     "404": {
@@ -135,11 +173,30 @@
                     "users"
                 ],
                 "summary": "Получение всех пользователей",
+                "parameters": [
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Номер страницы",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "maximum": 100,
+                        "minimum": 1,
+                        "type": "integer",
+                        "default": 20,
+                        "description": "Размер страницы",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Данные пользователей с пагинацией",
                         "schema": {
-                            "$ref": "#/definitions/pfo-vector_internal_repository.User"
+                            "$ref": "#/definitions/pfo-vector_internal_model.UserListResponse"
                         }
                     },
                     "404": {
@@ -175,9 +232,9 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Данные пользователя",
                         "schema": {
-                            "$ref": "#/definitions/pfo-vector_internal_repository.User"
+                            "$ref": "#/definitions/pfo-vector_internal_model.UserResponse"
                         }
                     },
                     "404": {
@@ -211,13 +268,76 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Пользователь удален",
                         "schema": {
-                            "$ref": "#/definitions/pfo-vector_internal_repository.User"
+                            "$ref": "#/definitions/pfo-vector_internal_model.UserResponse"
                         }
                     },
                     "404": {
                         "description": "Пользователь не найден",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "description": "Частично обновляет данные пользователя по ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Обновление пользователя",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID пользователя",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Данные для обновления",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_handler.UpdateUserRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Пользователь успешно обновлен",
+                        "schema": {
+                            "$ref": "#/definitions/pfo-vector_internal_model.UserResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный формат запроса",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Пользователь не найден",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "409": {
+                        "description": "Пользователь с таким telegram_id уже существует",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка сервера",
                         "schema": {
                             "type": "string"
                         }
@@ -266,98 +386,113 @@
                 }
             }
         },
-        "pfo-vector_internal_repository.User": {
+        "internal_handler.UpdateUserRequest": {
             "type": "object",
             "properties": {
                 "avatar_url": {
-                    "$ref": "#/definitions/pgtype.Text"
+                    "type": "string"
                 },
                 "direction_vector": {
-                    "$ref": "#/definitions/pgtype.Text"
+                    "type": "string"
                 },
                 "full_name": {
                     "type": "string"
                 },
                 "gender": {
-                    "$ref": "#/definitions/pgtype.Text"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "join_date": {
-                    "$ref": "#/definitions/pgtype.Timestamptz"
+                    "type": "string"
                 },
                 "phone_number": {
-                    "$ref": "#/definitions/pgtype.Text"
+                    "type": "string"
                 },
                 "rating": {
-                    "$ref": "#/definitions/pgtype.Int4"
+                    "type": "integer"
                 },
                 "role": {
-                    "$ref": "#/definitions/pgtype.Text"
+                    "type": "string"
                 },
                 "study_group": {
-                    "$ref": "#/definitions/pgtype.Text"
+                    "type": "string"
                 },
                 "telegram": {
                     "type": "string"
                 },
                 "telegram_id": {
-                    "$ref": "#/definitions/pgtype.Int4"
+                    "type": "integer"
                 },
                 "visited_events_count": {
-                    "$ref": "#/definitions/pgtype.Int4"
+                    "type": "integer"
                 }
             }
         },
-        "pgtype.InfinityModifier": {
-            "type": "integer",
-            "format": "int32",
-            "enum": [
-                1,
-                0,
-                -1
-            ],
-            "x-enum-varnames": [
-                "Infinity",
-                "Finite",
-                "NegativeInfinity"
-            ]
-        },
-        "pgtype.Int4": {
+        "pfo-vector_internal_model.Pagination": {
             "type": "object",
             "properties": {
-                "int32": {
-                    "type": "integer",
-                    "format": "int32"
+                "limit": {
+                    "type": "integer"
                 },
-                "valid": {
-                    "type": "boolean"
+                "offset": {
+                    "type": "integer"
+                },
+                "page": {
+                    "type": "integer"
                 }
             }
         },
-        "pgtype.Text": {
+        "pfo-vector_internal_model.UserListResponse": {
             "type": "object",
             "properties": {
-                "string": {
+                "pagination": {
+                    "$ref": "#/definitions/pfo-vector_internal_model.Pagination"
+                },
+                "users": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/pfo-vector_internal_model.UserResponse"
+                    }
+                }
+            }
+        },
+        "pfo-vector_internal_model.UserResponse": {
+            "type": "object",
+            "properties": {
+                "avatar_url": {
                     "type": "string"
                 },
-                "valid": {
-                    "type": "boolean"
-                }
-            }
-        },
-        "pgtype.Timestamptz": {
-            "type": "object",
-            "properties": {
-                "infinityModifier": {
-                    "$ref": "#/definitions/pgtype.InfinityModifier"
-                },
-                "time": {
+                "direction_vector": {
                     "type": "string"
                 },
-                "valid": {
-                    "type": "boolean"
+                "full_name": {
+                    "type": "string"
+                },
+                "gender": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "join_date": {
+                    "type": "string"
+                },
+                "phone_number": {
+                    "type": "string"
+                },
+                "rating": {
+                    "type": "integer"
+                },
+                "role": {
+                    "type": "string"
+                },
+                "study_group": {
+                    "type": "string"
+                },
+                "telegram": {
+                    "type": "string"
+                },
+                "telegram_id": {
+                    "type": "integer"
+                },
+                "visited_events_count": {
+                    "type": "integer"
                 }
             }
         }

@@ -6,15 +6,15 @@ import (
 	"net/http"
 	"os"
 
-	db "pfo-vector/internal/repository"
 	"pfo-vector/internal/handler"
+	db "pfo-vector/internal/repository"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/jackc/pgx/v5/pgxpool"
-
+	"github.com/joho/godotenv"
 
 	httpSwagger "github.com/swaggo/http-swagger/v2"
 )
@@ -26,6 +26,10 @@ import (
 // @BasePath        /
 // @schemes         http
 func main() {
+	//ПОдгружаем данные из файла .env в окружение
+	if err := godotenv.Load(); err != nil {
+        log.Println("Warning: .env file not found, using system env vars")
+    }
 	ctx := context.Background()
     dbURL := os.Getenv("DATABASE_URL")
     
@@ -34,6 +38,7 @@ func main() {
         log.Fatalf("Migration failed: %v", err)
     }
     
+
     // Запускаем сервер
 	pool, err := pgxpool.New(ctx, dbURL)
 	if err != nil {
@@ -45,10 +50,10 @@ func main() {
     userHandler := handler.NewUserHandler(queries)
     
     //РУЧКИ
-    r := chi.NewRouter()
+     r := chi.NewRouter()
 
     r.Post("/users/add", userHandler.CreateUser)
-
+	r.Patch("/users/{id}", userHandler.UpdateUser)
     r.Get("/users/{id}", userHandler.GetUser)
 	
 	r.Get("/users/all",userHandler.ListUsersId)
