@@ -28,3 +28,8 @@ type UserListResponse struct {
     Users []UserResponse `json:"users"`
     Pagination Pagination `json:"pagination"`
 }
+
+type UserImportResponse struct{
+    Users []UserResponse `json:"users"`
+    
+}

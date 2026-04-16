@@ -8,6 +8,7 @@ import (
 
 	"pfo-vector/internal/handler"
 	db "pfo-vector/internal/repository"
+	"pfo-vector/internal/service"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/golang-migrate/migrate/v4"
@@ -47,12 +48,14 @@ func main() {
 	defer pool.Close()
 
 	queries := db.New(pool)
-    userHandler := handler.NewUserHandler(queries)
+	service:=service.NewUserImportService(queries)
+    userHandler := handler.NewUserHandler(queries,service)
     
     //РУЧКИ
      r := chi.NewRouter()
 
     r.Post("/users/add", userHandler.CreateUser)
+	r.Post("/users/import-users",userHandler.ImportUsers)
 	r.Patch("/users/{id}", userHandler.UpdateUser)
     r.Get("/users/{id}", userHandler.GetUser)
 	

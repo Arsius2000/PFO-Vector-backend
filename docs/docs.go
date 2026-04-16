@@ -211,6 +211,56 @@ const docTemplate = `{
                 }
             }
         },
+        "/users/import-users": {
+            "post": {
+                "description": "Загружает Excel-файл и импортирует пользователей",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Импорт пользователей из Excel",
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "Excel файл (.xlsx)",
+                        "name": "file",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Импорт завершён",
+                        "schema": {
+                            "$ref": "#/definitions/pfo-vector_internal_model.ImportResult"
+                        }
+                    },
+                    "400": {
+                        "description": "Некорректный файл или данные",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "409": {
+                        "description": "Конфликт уникальных данных",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка сервера",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/users/{id}": {
             "get": {
                 "description": "Возвращает данные пользователя по ID",
@@ -427,6 +477,26 @@ const docTemplate = `{
                 }
             }
         },
+        "pfo-vector_internal_model.ImportResult": {
+            "type": "object",
+            "properties": {
+                "created": {
+                    "type": "integer"
+                },
+                "errors": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/pfo-vector_internal_model.RowError"
+                    }
+                },
+                "failed": {
+                    "type": "integer"
+                },
+                "total_rows": {
+                    "type": "integer"
+                }
+            }
+        },
         "pfo-vector_internal_model.Pagination": {
             "type": "object",
             "properties": {
@@ -437,6 +507,20 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "page": {
+                    "type": "integer"
+                }
+            }
+        },
+        "pfo-vector_internal_model.RowError": {
+            "type": "object",
+            "properties": {
+                "field": {
+                    "type": "string"
+                },
+                "reason": {
+                    "type": "string"
+                },
+                "row": {
                     "type": "integer"
                 }
             }

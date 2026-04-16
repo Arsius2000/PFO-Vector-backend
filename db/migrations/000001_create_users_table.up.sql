@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS users (
     rating INT DEFAULT 0,
     visited_events_count INT DEFAULT 0,
     phone_number VARCHAR(20),
-    telegram VARCHAR(100) NOT NULL,
+    telegram VARCHAR(100) NOT NULL UNIQUE,
     avatar_url TEXT,
     join_date TIMESTAMPTZ DEFAULT NOW(),
     role VARCHAR(50) DEFAULT 'боец',

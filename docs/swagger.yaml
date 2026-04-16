@@ -52,6 +52,19 @@ definitions:
       visited_events_count:
         type: integer
     type: object
+  pfo-vector_internal_model.ImportResult:
+    properties:
+      created:
+        type: integer
+      errors:
+        items:
+          $ref: '#/definitions/pfo-vector_internal_model.RowError'
+        type: array
+      failed:
+        type: integer
+      total_rows:
+        type: integer
+    type: object
   pfo-vector_internal_model.Pagination:
     properties:
       limit:
@@ -59,6 +72,15 @@ definitions:
       offset:
         type: integer
       page:
+        type: integer
+    type: object
+  pfo-vector_internal_model.RowError:
+    properties:
+      field:
+        type: string
+      reason:
+        type: string
+      row:
         type: integer
     type: object
   pfo-vector_internal_model.UserListResponse:
@@ -328,6 +350,39 @@ paths:
           schema:
             type: string
       summary: Получение всех пользователей
+      tags:
+      - users
+  /users/import-users:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Загружает Excel-файл и импортирует пользователей
+      parameters:
+      - description: Excel файл (.xlsx)
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Импорт завершён
+          schema:
+            $ref: '#/definitions/pfo-vector_internal_model.ImportResult'
+        "400":
+          description: Некорректный файл или данные
+          schema:
+            type: string
+        "409":
+          description: Конфликт уникальных данных
+          schema:
+            type: string
+        "500":
+          description: Ошибка сервера
+          schema:
+            type: string
+      summary: Импорт пользователей из Excel
       tags:
       - users
 schemes:

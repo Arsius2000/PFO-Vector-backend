@@ -3,12 +3,15 @@ package handler
 import (
 	"database/sql"
 	"encoding/json"
+	"errors"
+
 	"net/http"
 	"strconv"
 	"strings"
 
 	"pfo-vector/internal/model"
 	"pfo-vector/internal/repository"
+	"pfo-vector/internal/service"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/jackc/pgx/v5/pgtype"
@@ -30,11 +33,13 @@ type UpdateUserRequest struct {
 
 type UserHandler struct{
 	queries *repository.Queries
+	service *service.UserImportService
 }
 
-func NewUserHandler(queries *repository.Queries) *UserHandler{
+func NewUserHandler(queries *repository.Queries,service *service.UserImportService) *UserHandler{
 	return &UserHandler{
 		queries: queries,
+		service: service,
 	}
 }
 
@@ -139,6 +144,69 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 }
 
 
+// ImportUsers godoc
+// @Summary      Импорт пользователей из Excel
+// @Description  Загружает Excel-файл и импортирует пользователей
+// @Tags         users
+// @Accept       multipart/form-data
+// @Produce      json
+// @Param        file  formData  file  true  "Excel файл (.xlsx)"
+// @Success      201   {object}  model.ImportResult  "Импорт завершён"
+// @Failure      400   {string}  string              "Некорректный файл или данные"
+// @Failure      409   {string}  string              "Конфликт уникальных данных"
+// @Failure      500   {string}  string              "Ошибка сервера"
+// @Router       /users/import-users [post]
+func  (h *UserHandler) ImportUsers(w http.ResponseWriter, r *http.Request){
+
+	ctx := r.Context()
+	//Проверка на правильность метода
+	if r.Method!=http.MethodPost{
+		http.Error(w,"Method not allowed",http.StatusMethodNotAllowed)
+		return
+	}
+
+	//Ограничение файла в 10 мб
+	err := r.ParseMultipartForm(10<<20)
+	if err!=nil{
+		http.Error(w,"Invalid multipart form",http.StatusBadRequest)
+		return
+	}
+	file,_ ,err := r.FormFile("file")
+	if err!=nil{
+		http.Error(w,"file field 'file' is required",http.StatusBadRequest)
+		return
+	}
+	defer file.Close()
+
+	response,err := h.service.ImportFromExcel(ctx,file)
+	if err!=nil{
+		switch {
+			case errors.Is(err, service.ErrOpenExcelReader):
+				http.Error(w, "Error not open excel file", http.StatusBadRequest)
+				return
+			case errors.Is(err, service.ErrEmptyWorkbook):
+				http.Error(w, "empty workbook", http.StatusBadRequest)
+				return
+			case errors.Is(err, service.ErrFailedReadRows):
+				http.Error(w, "failed to read rows", http.StatusBadRequest)
+				return
+			case errors.Is(err, service.ErrNoDataRows):
+				http.Error(w, "no data rows", http.StatusBadRequest)
+				return
+			case errors.Is(err, service.ErrMissingRequiredCol):
+				http.Error(w, err.Error(), http.StatusBadRequest) // тут останется имя колонки
+				return
+			default:
+				http.Error(w, "server error", http.StatusInternalServerError)
+				return
+			}
+	}
+	
+	w.WriteHeader(http.StatusCreated)
+	
+	json.NewEncoder(w).Encode(response)
+
+}
 
 // UpdateUser godoc
 // @Summary      Обновление пользователя
