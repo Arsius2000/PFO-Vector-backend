@@ -15,21 +15,21 @@ RETURNING *;
 SELECT * FROM events
 WHERE id = $1;
 
--- name: ListEventsById :many
+-- name: ListEventsId :many
 SELECT *
 FROM events
 ORDER BY id ASC 
 LIMIT sqlc.arg('limit')
 OFFSET sqlc.arg('offset');
 
--- name: ListEventsByDate :many
+-- name: ListEventsDate :many
 SELECT *
 FROM events
 ORDER BY event_date ASC 
 LIMIT sqlc.arg('limit')
 OFFSET sqlc.arg('offset');
 
--- name: ListEventsByTitle :many
+-- name: ListEventsTitle :many
 SELECT *
 FROM events
 ORDER BY title ASC 

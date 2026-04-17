@@ -61,6 +61,54 @@ const docTemplate = `{
                 }
             }
         },
+        "/events/all": {
+            "get": {
+                "description": "Возвращает данные мероприятий по ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "events"
+                ],
+                "summary": "Получение всех мероприятий",
+                "parameters": [
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Номер страницы",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "maximum": 100,
+                        "minimum": 1,
+                        "type": "integer",
+                        "default": 20,
+                        "description": "Размер страницы",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Данные   с пагинацией",
+                        "schema": {
+                            "$ref": "#/definitions/pfo-vector_internal_model.EventsListResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Ошибка получения списка мероприятий",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/events/{id}": {
             "get": {
                 "description": "Возвращает данные мероприятия по ID",
@@ -613,6 +661,20 @@ const docTemplate = `{
                 },
                 "weight": {
                     "type": "integer"
+                }
+            }
+        },
+        "pfo-vector_internal_model.EventsListResponse": {
+            "type": "object",
+            "properties": {
+                "events": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/pfo-vector_internal_model.EventResponse"
+                    }
+                },
+                "pagination": {
+                    "$ref": "#/definitions/pfo-vector_internal_model.Pagination"
                 }
             }
         },

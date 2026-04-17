@@ -13,3 +13,8 @@ type EventResponse struct {
 	CreatedBy int32 `json:"created_by"`
 	 
 }
+
+type EventsListResponse struct {
+    Events []EventResponse `json:"events"`
+    Pagination Pagination `json:"pagination"`
+}

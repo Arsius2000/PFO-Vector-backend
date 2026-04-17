@@ -88,6 +88,15 @@ definitions:
       weight:
         type: integer
     type: object
+  pfo-vector_internal_model.EventsListResponse:
+    properties:
+      events:
+        items:
+          $ref: '#/definitions/pfo-vector_internal_model.EventResponse'
+        type: array
+      pagination:
+        $ref: '#/definitions/pfo-vector_internal_model.Pagination'
+    type: object
   pfo-vector_internal_model.ImportResult:
     properties:
       created:
@@ -217,6 +226,39 @@ paths:
           schema:
             type: string
       summary: Создание мероприятия
+      tags:
+      - events
+  /events/all:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает данные мероприятий по ID
+      parameters:
+      - default: 1
+        description: Номер страницы
+        in: query
+        minimum: 1
+        name: page
+        type: integer
+      - default: 20
+        description: Размер страницы
+        in: query
+        maximum: 100
+        minimum: 1
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Данные   с пагинацией
+          schema:
+            $ref: '#/definitions/pfo-vector_internal_model.EventsListResponse'
+        "404":
+          description: Ошибка получения списка мероприятий
+          schema:
+            type: string
+      summary: Получение всех мероприятий
       tags:
       - events
   /users/{id}:

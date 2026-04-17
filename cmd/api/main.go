@@ -69,6 +69,7 @@ func main() {
 
 	r.Post("/events/add",eventHadler.CreateEvent)
 	r.Get("/events/{id}",eventHadler.GetEvent)
+	r.Get("/events/all",eventHadler.ListEventsId)
 	// --- Подключение Swagger ---
 	// Маршрут для Swagger UI будет доступен по адресу http://localhost:8080/swagger/index.html
 	r.Get("/swagger/*", httpSwagger.Handler(

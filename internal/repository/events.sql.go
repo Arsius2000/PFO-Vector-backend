@@ -133,7 +133,7 @@ func (q *Queries) GetEventsByUser(ctx context.Context, arg GetEventsByUserParams
 	return items, nil
 }
 
-const listEventsByDate = `-- name: ListEventsByDate :many
+const listEventsDate = `-- name: ListEventsDate :many
 SELECT id, event_date, start_time, end_time, title, audience, weight, created_by
 FROM events
 ORDER BY event_date ASC 
@@ -141,13 +141,13 @@ LIMIT $2
 OFFSET $1
 `
 
-type ListEventsByDateParams struct {
+type ListEventsDateParams struct {
 	Offset int64 `json:"offset"`
 	Limit  int64 `json:"limit"`
 }
 
-func (q *Queries) ListEventsByDate(ctx context.Context, arg ListEventsByDateParams) ([]Event, error) {
-	rows, err := q.db.Query(ctx, listEventsByDate, arg.Offset, arg.Limit)
+func (q *Queries) ListEventsDate(ctx context.Context, arg ListEventsDateParams) ([]Event, error) {
+	rows, err := q.db.Query(ctx, listEventsDate, arg.Offset, arg.Limit)
 	if err != nil {
 		return nil, err
 	}
@@ -175,7 +175,7 @@ func (q *Queries) ListEventsByDate(ctx context.Context, arg ListEventsByDatePara
 	return items, nil
 }
 
-const listEventsById = `-- name: ListEventsById :many
+const listEventsId = `-- name: ListEventsId :many
 SELECT id, event_date, start_time, end_time, title, audience, weight, created_by
 FROM events
 ORDER BY id ASC 
@@ -183,13 +183,13 @@ LIMIT $2
 OFFSET $1
 `
 
-type ListEventsByIdParams struct {
+type ListEventsIdParams struct {
 	Offset int64 `json:"offset"`
 	Limit  int64 `json:"limit"`
 }
 
-func (q *Queries) ListEventsById(ctx context.Context, arg ListEventsByIdParams) ([]Event, error) {
-	rows, err := q.db.Query(ctx, listEventsById, arg.Offset, arg.Limit)
+func (q *Queries) ListEventsId(ctx context.Context, arg ListEventsIdParams) ([]Event, error) {
+	rows, err := q.db.Query(ctx, listEventsId, arg.Offset, arg.Limit)
 	if err != nil {
 		return nil, err
 	}
@@ -217,7 +217,7 @@ func (q *Queries) ListEventsById(ctx context.Context, arg ListEventsByIdParams) 
 	return items, nil
 }
 
-const listEventsByTitle = `-- name: ListEventsByTitle :many
+const listEventsTitle = `-- name: ListEventsTitle :many
 SELECT id, event_date, start_time, end_time, title, audience, weight, created_by
 FROM events
 ORDER BY title ASC 
@@ -225,13 +225,13 @@ LIMIT $2
 OFFSET $1
 `
 
-type ListEventsByTitleParams struct {
+type ListEventsTitleParams struct {
 	Offset int64 `json:"offset"`
 	Limit  int64 `json:"limit"`
 }
 
-func (q *Queries) ListEventsByTitle(ctx context.Context, arg ListEventsByTitleParams) ([]Event, error) {
-	rows, err := q.db.Query(ctx, listEventsByTitle, arg.Offset, arg.Limit)
+func (q *Queries) ListEventsTitle(ctx context.Context, arg ListEventsTitleParams) ([]Event, error) {
+	rows, err := q.db.Query(ctx, listEventsTitle, arg.Offset, arg.Limit)
 	if err != nil {
 		return nil, err
 	}
