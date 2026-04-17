@@ -63,6 +63,7 @@ func (q *Queries) DeleteAchievements(ctx context.Context, id int32) error {
 }
 
 const updateAchievements = `-- name: UpdateAchievements :one
+
 UPDATE achievements
 SET achivements_name = $2,icon_name = $3,description = $4,condition_type = $5,condition_value = $6
 WHERE id = $1

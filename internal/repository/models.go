@@ -73,8 +73,7 @@ type UserAchievement struct {
 }
 
 type UserEvent struct {
-	ID       int32       `json:"id"`
-	UserID   int32       `json:"user_id"`
-	EventID  int32       `json:"event_id"`
-	Attended pgtype.Bool `json:"attended"`
+	UserID   int32 `json:"user_id"`
+	EventID  int32 `json:"event_id"`
+	Attended bool  `json:"attended"`
 }

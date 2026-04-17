@@ -10,18 +10,26 @@ import (
 
 type Querier interface {
 	CreateAchievements(ctx context.Context, arg CreateAchievementsParams) (Achievement, error)
+	CreateEvent(ctx context.Context, arg CreateEventParams) (Event, error)
 	CreateNews(ctx context.Context, arg CreateNewsParams) (News, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
 	DeleteAchievements(ctx context.Context, id int32) error
+	DeleteEvent(ctx context.Context, id int32) error
 	DeleteNews(ctx context.Context, id int32) error
 	DeleteUser(ctx context.Context, id int32) error
+	GetEvent(ctx context.Context, id int32) (Event, error)
+	GetEventsByUser(ctx context.Context, arg GetEventsByUserParams) ([]Event, error)
 	GetNews(ctx context.Context, id int32) (News, error)
 	GetUser(ctx context.Context, id int32) (User, error)
+	ListEventsByDate(ctx context.Context, arg ListEventsByDateParams) ([]Event, error)
+	ListEventsById(ctx context.Context, arg ListEventsByIdParams) ([]Event, error)
+	ListEventsByTitle(ctx context.Context, arg ListEventsByTitleParams) ([]Event, error)
 	ListNews(ctx context.Context) ([]News, error)
 	ListUsersId(ctx context.Context, arg ListUsersIdParams) ([]User, error)
 	ListUsersName(ctx context.Context, arg ListUsersNameParams) ([]User, error)
 	ListUsersRating(ctx context.Context, arg ListUsersRatingParams) ([]User, error)
 	UpdateAchievements(ctx context.Context, arg UpdateAchievementsParams) (Achievement, error)
+	UpdateEvent(ctx context.Context, arg UpdateEventParams) (Event, error)
 	UpdateNews(ctx context.Context, arg UpdateNewsParams) (News, error)
 	UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error)
 }

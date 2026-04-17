@@ -1,1 +1,60 @@
--- name: CreateEvents
+-- name: CreateEvent :one
+INSERT INTO events (
+    event_date,
+    start_time,
+    end_time,
+    title,
+    audience,
+    weight,
+    created_by
+)
+VALUES ($1, $2, $3, $4, $5, $6, $7)
+RETURNING *;
+
+-- name: GetEvent :one
+SELECT * FROM events
+WHERE id = $1;
+
+-- name: ListEventsById :many
+SELECT *
+FROM events
+ORDER BY id ASC 
+LIMIT sqlc.arg('limit')
+OFFSET sqlc.arg('offset');
+
+-- name: ListEventsByDate :many
+SELECT *
+FROM events
+ORDER BY event_date ASC 
+LIMIT sqlc.arg('limit')
+OFFSET sqlc.arg('offset');
+
+-- name: ListEventsByTitle :many
+SELECT *
+FROM events
+ORDER BY title ASC 
+LIMIT sqlc.arg('limit')
+OFFSET sqlc.arg('offset');
+
+-- name: UpdateEvent :one
+UPDATE events
+SET 
+    event_date = COALESCE(sqlc.narg('event_date'), event_date),
+    start_time = COALESCE(sqlc.narg('start_time'), start_time),
+    end_time = COALESCE(sqlc.narg('end_time'), end_time),
+    title = COALESCE(sqlc.narg('title'), title),
+    audience = COALESCE(sqlc.narg('audience'), audience),
+    weight = COALESCE(sqlc.narg('weight'), weight)
+WHERE id = $1
+RETURNING *;
+
+-- name: DeleteEvent :exec
+DELETE FROM events
+WHERE id = $1;
+
+-- name: GetEventsByUser :many
+SELECT e.* FROM events e
+WHERE e.created_by = $1
+ORDER BY e.event_date DESC
+LIMIT sqlc.arg('limit')
+OFFSET sqlc.arg('offset');
