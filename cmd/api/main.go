@@ -50,6 +50,7 @@ func main() {
 	queries := db.New(pool)
 	service:=service.NewUserImportService(queries)
     userHandler := handler.NewUserHandler(queries,service)
+	eventHadler := handler.NewEventHandler(queries)
     
     //РУЧКИ
      r := chi.NewRouter()
@@ -64,6 +65,10 @@ func main() {
     r.Get("/users/all/Rating",userHandler.ListUsersRating)
 
 	r.Delete("/users/{id}",userHandler.DeleteUser)
+
+
+	r.Post("/events/add",eventHadler.CreateEvent)
+	r.Get("/events/{id}",eventHadler.GetEvent)
 	// --- Подключение Swagger ---
 	// Маршрут для Swagger UI будет доступен по адресу http://localhost:8080/swagger/index.html
 	r.Get("/swagger/*", httpSwagger.Handler(

@@ -12,6 +12,90 @@
     "host": "localhost:8080",
     "basePath": "/",
     "paths": {
+        "/events/add": {
+            "post": {
+                "description": "Создает новое мероприятие с переданными данными",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "events"
+                ],
+                "summary": "Создание мероприятия",
+                "parameters": [
+                    {
+                        "description": "Данные мероприятия",
+                        "name": "event",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_handler.CreateEventRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Мероприятие успешно создано",
+                        "schema": {
+                            "$ref": "#/definitions/pfo-vector_internal_model.EventResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный формат запроса или валидация не пройдена",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка сервера",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/events/{id}": {
+            "get": {
+                "description": "Возвращает данные мероприятия по ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "events"
+                ],
+                "summary": "Получение мероприятия",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID мероприятия",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Данные мероприятия",
+                        "schema": {
+                            "$ref": "#/definitions/pfo-vector_internal_model.EventResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Мероприятие не найдено",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/users/add": {
             "post": {
                 "description": "Создает нового пользователя с переданными данными",
@@ -397,6 +481,32 @@
         }
     },
     "definitions": {
+        "internal_handler.CreateEventRequest": {
+            "type": "object",
+            "properties": {
+                "audience": {
+                    "type": "string"
+                },
+                "created_by": {
+                    "type": "integer"
+                },
+                "end_time": {
+                    "type": "string"
+                },
+                "event_date": {
+                    "type": "string"
+                },
+                "start_time": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "weight": {
+                    "type": "integer"
+                }
+            }
+        },
         "internal_handler.CreateUserRequest": {
             "type": "object",
             "properties": {
@@ -470,6 +580,35 @@
                     "type": "integer"
                 },
                 "visited_events_count": {
+                    "type": "integer"
+                }
+            }
+        },
+        "pfo-vector_internal_model.EventResponse": {
+            "type": "object",
+            "properties": {
+                "audience": {
+                    "type": "string"
+                },
+                "created_by": {
+                    "type": "integer"
+                },
+                "end_time": {
+                    "type": "string"
+                },
+                "event_date": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "start_time": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "weight": {
                     "type": "integer"
                 }
             }

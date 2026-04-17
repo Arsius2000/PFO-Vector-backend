@@ -1,5 +1,22 @@
 basePath: /
 definitions:
+  internal_handler.CreateEventRequest:
+    properties:
+      audience:
+        type: string
+      created_by:
+        type: integer
+      end_time:
+        type: string
+      event_date:
+        type: string
+      start_time:
+        type: string
+      title:
+        type: string
+      weight:
+        type: integer
+    type: object
   internal_handler.CreateUserRequest:
     properties:
       avatar_url:
@@ -50,6 +67,25 @@ definitions:
       telegram_id:
         type: integer
       visited_events_count:
+        type: integer
+    type: object
+  pfo-vector_internal_model.EventResponse:
+    properties:
+      audience:
+        type: string
+      created_by:
+        type: integer
+      end_time:
+        type: string
+      event_date:
+        type: string
+      id:
+        type: integer
+      start_time:
+        type: string
+      title:
+        type: string
+      weight:
         type: integer
     type: object
   pfo-vector_internal_model.ImportResult:
@@ -128,6 +164,61 @@ info:
   title: My Project API
   version: "1.0"
 paths:
+  /events/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает данные мероприятия по ID
+      parameters:
+      - description: ID мероприятия
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Данные мероприятия
+          schema:
+            $ref: '#/definitions/pfo-vector_internal_model.EventResponse'
+        "404":
+          description: Мероприятие не найдено
+          schema:
+            type: string
+      summary: Получение мероприятия
+      tags:
+      - events
+  /events/add:
+    post:
+      consumes:
+      - application/json
+      description: Создает новое мероприятие с переданными данными
+      parameters:
+      - description: Данные мероприятия
+        in: body
+        name: event
+        required: true
+        schema:
+          $ref: '#/definitions/internal_handler.CreateEventRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Мероприятие успешно создано
+          schema:
+            $ref: '#/definitions/pfo-vector_internal_model.EventResponse'
+        "400":
+          description: Неверный формат запроса или валидация не пройдена
+          schema:
+            type: string
+        "500":
+          description: Ошибка сервера
+          schema:
+            type: string
+      summary: Создание мероприятия
+      tags:
+      - events
   /users/{id}:
     delete:
       consumes:
