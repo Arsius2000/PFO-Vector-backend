@@ -9,6 +9,7 @@ import (
 )
 
 type Querier interface {
+	AddUserEvent(ctx context.Context, arg AddUserEventParams) error
 	CreateAchievements(ctx context.Context, arg CreateAchievementsParams) (Achievement, error)
 	CreateEvent(ctx context.Context, arg CreateEventParams) (Event, error)
 	CreateNews(ctx context.Context, arg CreateNewsParams) (News, error)
@@ -21,6 +22,7 @@ type Querier interface {
 	GetEventsByUser(ctx context.Context, arg GetEventsByUserParams) ([]Event, error)
 	GetNews(ctx context.Context, id int32) (News, error)
 	GetUser(ctx context.Context, id int32) (User, error)
+	GetUserEventsByUserID(ctx context.Context, userID int32) ([]Event, error)
 	ListEventsDate(ctx context.Context, arg ListEventsDateParams) ([]Event, error)
 	ListEventsId(ctx context.Context, arg ListEventsIdParams) ([]Event, error)
 	ListEventsTitle(ctx context.Context, arg ListEventsTitleParams) ([]Event, error)
