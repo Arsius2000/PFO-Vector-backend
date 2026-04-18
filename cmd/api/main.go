@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"pfo-vector/internal/handler"
+	"pfo-vector/internal/middleware"
 	db "pfo-vector/internal/repository"
 	"pfo-vector/internal/service"
 
@@ -25,6 +26,9 @@ import (
 // @description     API сервер для управления пользователями
 // @host            localhost:8080
 // @BasePath        /
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
 // @schemes         http
 func main() {
 	//ПОдгружаем данные из файла .env в окружение
@@ -54,8 +58,12 @@ func main() {
     
     //РУЧКИ
      r := chi.NewRouter()
-
-    r.Post("/users/add", userHandler.CreateUser)
+		// --- Авторизация через Telegram ---
+	telegramAuthHandler := handler.NewTelegramAuthHandler(queries)
+	r.Post("/auth/telegram", telegramAuthHandler.TelegramAuth)
+	r.Get("/auth/check/{telegram_username}", telegramAuthHandler.CheckTelegramUsername)
+	//
+    
 	r.Post("/users/import-users",userHandler.ImportUsers)
 	r.Patch("/users/{id}", userHandler.UpdateUser)
     r.Get("/users/{id}", userHandler.GetUser)
@@ -64,12 +72,24 @@ func main() {
 	r.Get("/users/all/Name",userHandler.ListUsersName)
     r.Get("/users/all/Rating",userHandler.ListUsersRating)
 
-	r.Delete("/users/{id}",userHandler.DeleteUser)
+	
 
 
-	r.Post("/events/add",eventHadler.CreateEvent)
+	
 	r.Get("/events/{id}",eventHadler.GetEvent)
 	r.Get("/events/all",eventHadler.ListEventsId)
+	secret := os.Getenv("JWT_SECRET")
+	if secret == "" {
+		secret = "dev_secret_key_change_me" // fallback для разработки
+	}
+
+	r.Group(func(r chi.Router) {
+		r.Use(middleware.JWTAuth(secret))
+
+		r.Delete("/users/{id}",userHandler.DeleteUser)
+		r.Post("/users/add", userHandler.CreateUser)
+		r.Post("/events/add",eventHadler.CreateEvent)
+	})
 	// --- Подключение Swagger ---
 	// Маршрут для Swagger UI будет доступен по адресу http://localhost:8080/swagger/index.html
 	r.Get("/swagger/*", httpSwagger.Handler(

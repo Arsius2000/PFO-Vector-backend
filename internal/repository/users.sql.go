@@ -118,8 +118,8 @@ OFFSET $1
 `
 
 type ListUsersIdParams struct {
-	Offset int64 `json:"offset"`
-	Limit  int64 `json:"limit"`
+	Offset int32 `json:"offset"`
+	Limit  int32 `json:"limit"`
 }
 
 func (q *Queries) ListUsersId(ctx context.Context, arg ListUsersIdParams) ([]User, error) {
@@ -165,8 +165,8 @@ OFFSET $1
 `
 
 type ListUsersNameParams struct {
-	Offset int64 `json:"offset"`
-	Limit  int64 `json:"limit"`
+	Offset int32 `json:"offset"`
+	Limit  int32 `json:"limit"`
 }
 
 func (q *Queries) ListUsersName(ctx context.Context, arg ListUsersNameParams) ([]User, error) {
@@ -212,8 +212,8 @@ OFFSET $1
 `
 
 type ListUsersRatingParams struct {
-	Offset int64 `json:"offset"`
-	Limit  int64 `json:"limit"`
+	Offset int32 `json:"offset"`
+	Limit  int32 `json:"limit"`
 }
 
 func (q *Queries) ListUsersRating(ctx context.Context, arg ListUsersRatingParams) ([]User, error) {

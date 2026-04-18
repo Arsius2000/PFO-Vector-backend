@@ -371,8 +371,8 @@ func (h *UserHandler) ListUsersId(w http.ResponseWriter, r *http.Request) {
 	// sqlc сгенерирует типы int32 или int64 в зависимости от вашей БД. 
 	// Обычно для LIMIT/OFFSET подходит int32, но проверьте сгенерированный код.
 	args := repository.ListUsersIdParams{
-		Limit:  int64(limit),
-		Offset: int64(offset),
+		Limit:  int32(limit),
+		Offset: int32(offset),
 	}
 
 	// 3. Выполнение запроса
@@ -446,8 +446,8 @@ func (h *UserHandler) ListUsersName(w http.ResponseWriter, r *http.Request) {
 	// sqlc сгенерирует типы int32 или int64 в зависимости от вашей БД. 
 	// Обычно для LIMIT/OFFSET подходит int32, но проверьте сгенерированный код.
 	args := repository.ListUsersNameParams{
-		Limit:  int64(limit),
-		Offset: int64(offset),
+		Limit:  int32(limit),
+		Offset: int32(offset),
 	}
 
 	// 3. Выполнение запроса
@@ -521,8 +521,8 @@ func (h *UserHandler) ListUsersRating(w http.ResponseWriter, r *http.Request) {
 	// sqlc сгенерирует типы int32 или int64 в зависимости от вашей БД. 
 	// Обычно для LIMIT/OFFSET подходит int32, но проверьте сгенерированный код.
 	args := repository.ListUsersRatingParams{
-		Limit:  int64(limit),
-		Offset: int64(offset),
+		Limit:  int32(limit),
+		Offset: int32(offset),
 	}
 
 	// 3. Выполнение запроса
@@ -557,7 +557,9 @@ func (h *UserHandler) ListUsersRating(w http.ResponseWriter, r *http.Request) {
 // @Produce      json
 // @Param        id   path      int  true  "ID пользователя"
 // @Success      200  {object}  model.UserResponse  "Пользователь удален"
+// @Success      204  {string}  string "Пользователь удален"
 // @Failure      404  {string}  string  "Пользователь не найден"
+// @Security BearerAuth 
 // @Router       /users/{id} [delete]
 func (h *UserHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 

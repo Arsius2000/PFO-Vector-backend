@@ -44,6 +44,37 @@ definitions:
         description: Если nil -> БД поставит 0
         type: integer
     type: object
+  internal_handler.TelegramAuthRequest:
+    properties:
+      phone_number:
+        type: string
+      telegram_id:
+        type: integer
+      username:
+        type: string
+    type: object
+  internal_handler.TelegramAuthResponse:
+    properties:
+      message:
+        type: string
+      status:
+        type: string
+      token:
+        type: string
+      user_id:
+        type: integer
+    type: object
+  internal_handler.TelegramCheckResponse:
+    properties:
+      exists:
+        type: boolean
+      message:
+        type: string
+      status:
+        type: string
+      user_id:
+        type: integer
+    type: object
   internal_handler.UpdateUserRequest:
     properties:
       avatar_url:
@@ -173,6 +204,66 @@ info:
   title: My Project API
   version: "1.0"
 paths:
+  /auth/check/{telegram_username}:
+    get:
+      consumes:
+      - application/json
+      description: Проверяет, существует ли пользователь по telegram username
+      parameters:
+      - description: Telegram username
+        in: path
+        name: telegram_username
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Результат проверки
+          schema:
+            $ref: '#/definitions/internal_handler.TelegramCheckResponse'
+        "500":
+          description: Ошибка сервера
+          schema:
+            type: string
+      summary: Проверка существования пользователя по telegram_username
+      tags:
+      - auth
+  /auth/telegram:
+    post:
+      consumes:
+      - application/json
+      description: Авторизация только для существующих пользователей. Автоматически
+        обновляет telegram username
+      parameters:
+      - description: Данные от Телеграм-бота
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_handler.TelegramAuthRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Успешная авторизация
+          schema:
+            $ref: '#/definitions/internal_handler.TelegramAuthResponse'
+        "400":
+          description: Неверный формат запроса
+          schema:
+            type: string
+        "401":
+          description: Пользователь не найден
+          schema:
+            type: string
+        "500":
+          description: Ошибка сервера
+          schema:
+            type: string
+      summary: Авторизация через Telegram
+      tags:
+      - auth
   /events/{id}:
     get:
       consumes:
@@ -283,6 +374,8 @@ paths:
           description: Пользователь не найден
           schema:
             type: string
+      security:
+      - BearerAuth: []
       summary: Удаление пользователя
       tags:
       - users
@@ -518,6 +611,9 @@ paths:
       summary: Импорт пользователей из Excel
       tags:
       - users
-schemes:
-- http
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

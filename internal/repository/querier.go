@@ -6,6 +6,8 @@ package repository
 
 import (
 	"context"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type Querier interface {
@@ -22,6 +24,8 @@ type Querier interface {
 	GetEventsByUser(ctx context.Context, arg GetEventsByUserParams) ([]Event, error)
 	GetNews(ctx context.Context, id int32) (News, error)
 	GetUser(ctx context.Context, id int32) (User, error)
+	GetUserByTelegramID(ctx context.Context, telegramID pgtype.Int4) (User, error)
+	GetUserByTelegramUsername(ctx context.Context, telegram string) (User, error)
 	GetUserEventsByUserID(ctx context.Context, userID int32) ([]Event, error)
 	ListEventsDate(ctx context.Context, arg ListEventsDateParams) ([]Event, error)
 	ListEventsId(ctx context.Context, arg ListEventsIdParams) ([]Event, error)
@@ -34,6 +38,7 @@ type Querier interface {
 	UpdateEvent(ctx context.Context, arg UpdateEventParams) (Event, error)
 	UpdateNews(ctx context.Context, arg UpdateNewsParams) (News, error)
 	UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error)
+	UpdateUserTelegramData(ctx context.Context, arg UpdateUserTelegramDataParams) (User, error)
 }
 
 var _ Querier = (*Queries)(nil)

@@ -191,8 +191,8 @@ func (h *EventHandler) ListEventsId(w http.ResponseWriter, r *http.Request) {
 	// sqlc сгенерирует типы int32 или int64 в зависимости от вашей БД.
 	// Обычно для LIMIT/OFFSET подходит int32, но проверьте сгенерированный код.
 	args := repository.ListEventsIdParams{
-		Limit:  int64(limit),
-		Offset: int64(offset),
+		Limit:  int32(limit),
+		Offset: int32(offset),
 	}
 
 	// 3. Выполнение запроса

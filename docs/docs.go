@@ -15,6 +15,96 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/auth/check/{telegram_username}": {
+            "get": {
+                "description": "Проверяет, существует ли пользователь по telegram username",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Проверка существования пользователя по telegram_username",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Telegram username",
+                        "name": "telegram_username",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Результат проверки",
+                        "schema": {
+                            "$ref": "#/definitions/internal_handler.TelegramCheckResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка сервера",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/telegram": {
+            "post": {
+                "description": "Авторизация только для существующих пользователей. Автоматически обновляет telegram username",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Авторизация через Telegram",
+                "parameters": [
+                    {
+                        "description": "Данные от Телеграм-бота",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_handler.TelegramAuthRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Успешная авторизация",
+                        "schema": {
+                            "$ref": "#/definitions/internal_handler.TelegramAuthResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный формат запроса",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Пользователь не найден",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка сервера",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/events/add": {
             "post": {
                 "description": "Создает новое мероприятие с переданными данными",
@@ -431,6 +521,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Удаляет пользователя по ID",
                 "consumes": [
                     "application/json"
@@ -593,6 +688,54 @@ const docTemplate = `{
                 },
                 "visited_events_count": {
                     "description": "Если nil -\u003e БД поставит 0",
+                    "type": "integer"
+                }
+            }
+        },
+        "internal_handler.TelegramAuthRequest": {
+            "type": "object",
+            "properties": {
+                "phone_number": {
+                    "type": "string"
+                },
+                "telegram_id": {
+                    "type": "integer"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_handler.TelegramAuthResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "token": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "internal_handler.TelegramCheckResponse": {
+            "type": "object",
+            "properties": {
+                "exists": {
+                    "type": "boolean"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "user_id": {
                     "type": "integer"
                 }
             }
@@ -784,6 +927,13 @@ const docTemplate = `{
                 }
             }
         }
+    },
+    "securityDefinitions": {
+        "BearerAuth": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
     }
 }`
 
@@ -792,7 +942,7 @@ var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
 	Host:             "localhost:8080",
 	BasePath:         "/",
-	Schemes:          []string{"http"},
+	Schemes:          []string{},
 	Title:            "My Project API",
 	Description:      "API сервер для управления пользователями",
 	InfoInstanceName: "swagger",

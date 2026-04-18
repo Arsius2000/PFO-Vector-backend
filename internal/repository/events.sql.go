@@ -100,8 +100,8 @@ OFFSET $2
 
 type GetEventsByUserParams struct {
 	CreatedBy int32 `json:"created_by"`
-	Offset    int64 `json:"offset"`
-	Limit     int64 `json:"limit"`
+	Offset    int32 `json:"offset"`
+	Limit     int32 `json:"limit"`
 }
 
 func (q *Queries) GetEventsByUser(ctx context.Context, arg GetEventsByUserParams) ([]Event, error) {
@@ -142,8 +142,8 @@ OFFSET $1
 `
 
 type ListEventsDateParams struct {
-	Offset int64 `json:"offset"`
-	Limit  int64 `json:"limit"`
+	Offset int32 `json:"offset"`
+	Limit  int32 `json:"limit"`
 }
 
 func (q *Queries) ListEventsDate(ctx context.Context, arg ListEventsDateParams) ([]Event, error) {
@@ -184,8 +184,8 @@ OFFSET $1
 `
 
 type ListEventsIdParams struct {
-	Offset int64 `json:"offset"`
-	Limit  int64 `json:"limit"`
+	Offset int32 `json:"offset"`
+	Limit  int32 `json:"limit"`
 }
 
 func (q *Queries) ListEventsId(ctx context.Context, arg ListEventsIdParams) ([]Event, error) {
@@ -226,8 +226,8 @@ OFFSET $1
 `
 
 type ListEventsTitleParams struct {
-	Offset int64 `json:"offset"`
-	Limit  int64 `json:"limit"`
+	Offset int32 `json:"offset"`
+	Limit  int32 `json:"limit"`
 }
 
 func (q *Queries) ListEventsTitle(ctx context.Context, arg ListEventsTitleParams) ([]Event, error) {
