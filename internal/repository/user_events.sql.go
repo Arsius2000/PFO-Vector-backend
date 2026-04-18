@@ -34,10 +34,18 @@ FROM events e
 JOIN user_events ue ON ue.event_id = e.id
 WHERE ue.user_id = $1
 ORDER BY e.event_date DESC
+LIMIT $3
+OFFSET $2
 `
 
-func (q *Queries) GetUserEventsByUserID(ctx context.Context, userID int32) ([]Event, error) {
-	rows, err := q.db.Query(ctx, getUserEventsByUserID, userID)
+type GetUserEventsByUserIDParams struct {
+	UserID int32 `json:"user_id"`
+	Offset int32 `json:"offset"`
+	Limit  int32 `json:"limit"`
+}
+
+func (q *Queries) GetUserEventsByUserID(ctx context.Context, arg GetUserEventsByUserIDParams) ([]Event, error) {
+	rows, err := q.db.Query(ctx, getUserEventsByUserID, arg.UserID, arg.Offset, arg.Limit)
 	if err != nil {
 		return nil, err
 	}

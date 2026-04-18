@@ -231,6 +231,107 @@
                 }
             }
         },
+        "/profile/event/add": {
+            "post": {
+                "description": "Добавляет мероприятие пользователю",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "UserEvent"
+                ],
+                "summary": "Добавление мероприятия пользователю",
+                "parameters": [
+                    {
+                        "description": "Данные о пользователе и мероприятии",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_handler.AddUserEventRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Записан на мероприятие",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка сервера",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/profile/{user_id}/events": {
+            "get": {
+                "description": "Возвращает список мероприятий по ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "UserEvent"
+                ],
+                "summary": "Получение всех мероприятий пользователя",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID пользователя",
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Номер страницы",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "maximum": 100,
+                        "minimum": 1,
+                        "type": "integer",
+                        "default": 20,
+                        "description": "Размер страницы",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Данные мероприятий пользователя с пагинацией",
+                        "schema": {
+                            "$ref": "#/definitions/pfo-vector_internal_model.EventsListResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Некорректный user_id",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка получения списка мероприятий",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/users/add": {
             "post": {
                 "description": "Создает нового пользователя с переданными данными",
@@ -547,6 +648,12 @@
                             "$ref": "#/definitions/pfo-vector_internal_model.UserResponse"
                         }
                     },
+                    "204": {
+                        "description": "Пользователь удален",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
                     "404": {
                         "description": "Пользователь не найден",
                         "schema": {
@@ -621,6 +728,17 @@
         }
     },
     "definitions": {
+        "internal_handler.AddUserEventRequest": {
+            "type": "object",
+            "properties": {
+                "event_id": {
+                    "type": "integer"
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
         "internal_handler.CreateEventRequest": {
             "type": "object",
             "properties": {

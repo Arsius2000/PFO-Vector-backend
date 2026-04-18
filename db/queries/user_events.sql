@@ -11,5 +11,8 @@ SELECT e.*
 FROM events e
 JOIN user_events ue ON ue.event_id = e.id
 WHERE ue.user_id = $1
-ORDER BY e.event_date DESC;
+ORDER BY e.event_date DESC
+LIMIT sqlc.arg('limit')
+OFFSET sqlc.arg('offset');
+
 

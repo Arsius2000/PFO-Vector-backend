@@ -54,7 +54,8 @@ func main() {
 	queries := db.New(pool)
 	service:=service.NewUserImportService(queries)
     userHandler := handler.NewUserHandler(queries,service)
-	eventHadler := handler.NewEventHandler(queries)
+	eventHandler := handler.NewEventHandler(queries)
+	userEventHandler := handler.NewUserEventHandler(queries)
     
     //РУЧКИ
      r := chi.NewRouter()
@@ -65,6 +66,8 @@ func main() {
 	//
     
 	r.Post("/users/import-users",userHandler.ImportUsers)
+	r.Post("/profile/event/add",userEventHandler.AddUserEvent)
+	r.Get("/profile/{user_id}/events" ,userEventHandler.UserEventListId)
 	r.Patch("/users/{id}", userHandler.UpdateUser)
     r.Get("/users/{id}", userHandler.GetUser)
 	
@@ -76,8 +79,8 @@ func main() {
 
 
 	
-	r.Get("/events/{id}",eventHadler.GetEvent)
-	r.Get("/events/all",eventHadler.ListEventsId)
+	r.Get("/events/{id}",eventHandler.GetEvent)
+	r.Get("/events/all",eventHandler.ListEventsId)
 	secret := os.Getenv("JWT_SECRET")
 	if secret == "" {
 		secret = "dev_secret_key_change_me" // fallback для разработки
@@ -88,7 +91,7 @@ func main() {
 
 		r.Delete("/users/{id}",userHandler.DeleteUser)
 		r.Post("/users/add", userHandler.CreateUser)
-		r.Post("/events/add",eventHadler.CreateEvent)
+		r.Post("/events/add",eventHandler.CreateEvent)
 	})
 	// --- Подключение Swagger ---
 	// Маршрут для Swagger UI будет доступен по адресу http://localhost:8080/swagger/index.html

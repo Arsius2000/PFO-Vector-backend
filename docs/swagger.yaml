@@ -1,5 +1,12 @@
 basePath: /
 definitions:
+  internal_handler.AddUserEventRequest:
+    properties:
+      event_id:
+        type: integer
+      user_id:
+        type: integer
+    type: object
   internal_handler.CreateEventRequest:
     properties:
       audience:
@@ -352,6 +359,74 @@ paths:
       summary: Получение всех мероприятий
       tags:
       - events
+  /profile/{user_id}/events:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает список мероприятий по ID
+      parameters:
+      - description: ID пользователя
+        in: path
+        name: user_id
+        required: true
+        type: integer
+      - default: 1
+        description: Номер страницы
+        in: query
+        minimum: 1
+        name: page
+        type: integer
+      - default: 20
+        description: Размер страницы
+        in: query
+        maximum: 100
+        minimum: 1
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Данные мероприятий пользователя с пагинацией
+          schema:
+            $ref: '#/definitions/pfo-vector_internal_model.EventsListResponse'
+        "400":
+          description: Некорректный user_id
+          schema:
+            type: string
+        "500":
+          description: Ошибка получения списка мероприятий
+          schema:
+            type: string
+      summary: Получение всех мероприятий пользователя
+      tags:
+      - UserEvent
+  /profile/event/add:
+    post:
+      consumes:
+      - application/json
+      description: Добавляет мероприятие пользователю
+      parameters:
+      - description: Данные о пользователе и мероприятии
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/internal_handler.AddUserEventRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Записан на мероприятие
+          schema:
+            type: string
+        "500":
+          description: Ошибка сервера
+          schema:
+            type: string
+      summary: Добавление мероприятия пользователю
+      tags:
+      - UserEvent
   /users/{id}:
     delete:
       consumes:
@@ -370,6 +445,10 @@ paths:
           description: Пользователь удален
           schema:
             $ref: '#/definitions/pfo-vector_internal_model.UserResponse'
+        "204":
+          description: Пользователь удален
+          schema:
+            type: string
         "404":
           description: Пользователь не найден
           schema:
