@@ -7,6 +7,19 @@ definitions:
       user_id:
         type: integer
     type: object
+  internal_handler.CreateAchievementRequest:
+    properties:
+      achivements_name:
+        type: string
+      condition_type:
+        type: string
+      condition_value:
+        type: integer
+      description:
+        type: string
+      icon_name:
+        type: string
+    type: object
   internal_handler.CreateEventRequest:
     properties:
       audience:
@@ -44,9 +57,6 @@ definitions:
       telegram:
         description: Обязательно (NOT NULL в БД)
         type: string
-      telegram_id:
-        description: UNIQUE в БД
-        type: integer
       visited_events_count:
         description: Если nil -> БД поставит 0
         type: integer
@@ -71,17 +81,6 @@ definitions:
       user_id:
         type: integer
     type: object
-  internal_handler.TelegramCheckResponse:
-    properties:
-      exists:
-        type: boolean
-      message:
-        type: string
-      status:
-        type: string
-      user_id:
-        type: integer
-    type: object
   internal_handler.UpdateUserRequest:
     properties:
       avatar_url:
@@ -102,9 +101,22 @@ definitions:
         type: string
       telegram:
         type: string
-      telegram_id:
-        type: integer
       visited_events_count:
+        type: integer
+    type: object
+  pfo-vector_internal_model.AchievementResponse:
+    properties:
+      achivements_name:
+        type: string
+      condition_type:
+        type: string
+      condition_value:
+        type: integer
+      description:
+        type: string
+      icon_name:
+        type: string
+      id:
         type: integer
     type: object
   pfo-vector_internal_model.EventResponse:
@@ -199,8 +211,6 @@ definitions:
         type: string
       telegram:
         type: string
-      telegram_id:
-        type: integer
       visited_events_count:
         type: integer
     type: object
@@ -211,31 +221,73 @@ info:
   title: My Project API
   version: "1.0"
 paths:
-  /auth/check/{telegram_username}:
-    get:
+  /achievement/add:
+    post:
       consumes:
       - application/json
-      description: Проверяет, существует ли пользователь по telegram username
+      description: Создает нового достижения с переданными данными
       parameters:
-      - description: Telegram username
-        in: path
-        name: telegram_username
+      - description: Данные достижения
+        in: body
+        name: user
         required: true
-        type: string
+        schema:
+          $ref: '#/definitions/internal_handler.CreateAchievementRequest'
       produces:
       - application/json
       responses:
-        "200":
-          description: Результат проверки
+        "201":
+          description: Достижение успешно создан
           schema:
-            $ref: '#/definitions/internal_handler.TelegramCheckResponse'
+            $ref: '#/definitions/pfo-vector_internal_model.AchievementResponse'
+        "400":
+          description: Неверный формат запроса или валидация не пройдена
+          schema:
+            type: string
         "500":
           description: Ошибка сервера
           schema:
             type: string
-      summary: Проверка существования пользователя по telegram_username
+      security:
+      - BearerAuth: []
+      summary: Создание достижения
       tags:
-      - auth
+      - achievement
+  /achievement/all:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает данные достижений по ID
+      parameters:
+      - default: 1
+        description: Номер страницы
+        in: query
+        minimum: 1
+        name: page
+        type: integer
+      - default: 20
+        description: Размер страницы
+        in: query
+        maximum: 100
+        minimum: 1
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Данные пользователей с пагинацией
+          schema:
+            $ref: '#/definitions/pfo-vector_internal_model.UserListResponse'
+        "404":
+          description: Ошибка получения списка пользователей
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Получение всех достижений
+      tags:
+      - achievement
   /auth/telegram:
     post:
       consumes:

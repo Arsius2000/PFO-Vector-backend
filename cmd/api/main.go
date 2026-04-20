@@ -93,6 +93,7 @@ func main() {
 		r.Post("/events/add",eventHandler.CreateEvent)
 
 		r.Post("/achievement/add",userAchievementsHandler.CreateAchievement)
+		r.Get("/achievement/all",userAchievementsHandler.ListAchievementsId)
 	})
 	// --- Подключение Swagger ---
 	// Маршрут для Swagger UI будет доступен по адресу http://localhost:8080/swagger/index.html

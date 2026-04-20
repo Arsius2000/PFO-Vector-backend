@@ -3,9 +3,10 @@ package handler
 import (
 	"encoding/json"
 	"net/http"
-	"pfo-vector/internal/repository"
-	"strings"
 	"pfo-vector/internal/model"
+	"pfo-vector/internal/repository"
+	"strconv"
+	"strings"
 
 	"github.com/jackc/pgx/v5/pgtype"
 )
@@ -28,7 +29,7 @@ type CreateAchievementRequest struct {
 	ConditionValue  *int32  `json:"condition_value"`
 }
 
-// CreateUser godoc
+// CreateAchievements godoc
 // @Summary      Создание достижения
 // @Description  Создает нового достижения с переданными данными
 // @Tags         achievement
@@ -97,4 +98,78 @@ func (h *AchievementHandler) CreateAchievement(w http.ResponseWriter, r *http.Re
 	resp := model.MapAchievementFromRepo(achivement)
 	json.NewEncoder(w).Encode(resp)
 
+}
+
+
+
+// ListAchievementsId godoc
+// @Summary      Получение всех достижений
+// @Description  Возвращает данные достижений по ID
+// @Tags         achievement
+// @Accept       json
+// @Produce      json
+// @Success      200  {object}  model.UserListResponse  "Данные пользователей с пагинацией" 
+// @Failure      404  {string}  string  "Ошибка получения списка пользователей"
+// @Param page query int false "Номер страницы" default(1) minimum(1)
+// @Param limit query int false "Размер страницы" default(20) minimum(1) maximum(100)
+// @Security BearerAuth 
+// @Router       /achievement/all [get]
+func (h *AchievementHandler) ListAchievementsId(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	// 1. Парсинг параметров пагинации из URL (?page=1&limit=20)
+	query := r.URL.Query()
+	
+
+	// Значения по умолчанию
+	page := 1
+	limit := 20 
+
+	if v:= query.Get("page"); v != "" {
+		if p, err := strconv.Atoi(v); err == nil && p > 0 {
+			page = p
+		}
+	}
+	if v:= query.Get("limit"); v != "" {
+		if l, err := strconv.Atoi(v); err == nil && l > 0 {
+			// Ограничим максимальный размер страницы, чтобы не нагружать БД
+			if l > 100 {
+				limit = 100
+			} else {
+				limit = l
+			}
+		}
+	}
+
+	// Расчет OFFSET: (page - 1) * limit
+	offset := (page - 1) * limit
+
+	// 2. Подготовка аргументов для sqlc
+	// sqlc сгенерирует типы int32 или int64 в зависимости от вашей БД. 
+	// Обычно для LIMIT/OFFSET подходит int32, но проверьте сгенерированный код.
+	args := repository.ListAchievementsIdParams{
+		Limit:  int32(limit),
+		Offset: int32(offset),
+	}
+
+	// 3. Выполнение запроса
+	achivements, err := h.queries.ListAchievementsId(ctx, args)
+	if err != nil {
+		// Логирование ошибки
+		http.Error(w, "Ошибка получения списка Достижений", http.StatusInternalServerError)
+		return
+	}
+
+	response := model.AchievementListResponse{
+    Achievements: model.MapAchievementsFromRepo(achivements),
+    Pagination: model.Pagination{
+        Page:   page,
+        Limit:  limit,
+        Offset: offset,
+   	},
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(response)
 }

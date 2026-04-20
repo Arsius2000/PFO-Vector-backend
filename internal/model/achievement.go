@@ -10,3 +10,8 @@ type AchievementResponse struct {
 	ConditionType   *string `json:"condition_type"`
 	ConditionValue  *int32  `json:"condition_value"`
 }
+
+type AchievementListResponse struct{
+	Achievements []AchievementResponse `json:"achievements"`
+	Pagination Pagination `json:"pagination"`
+}

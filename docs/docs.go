@@ -15,9 +15,14 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/auth/check/{telegram_username}": {
-            "get": {
-                "description": "Проверяет, существует ли пользователь по telegram username",
+        "/achievement/add": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Создает нового достижения с переданными данными",
                 "consumes": [
                     "application/json"
                 ],
@@ -25,27 +30,88 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "auth"
+                    "achievement"
                 ],
-                "summary": "Проверка существования пользователя по telegram_username",
+                "summary": "Создание достижения",
                 "parameters": [
                     {
-                        "type": "string",
-                        "description": "Telegram username",
-                        "name": "telegram_username",
-                        "in": "path",
-                        "required": true
+                        "description": "Данные достижения",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_handler.CreateAchievementRequest"
+                        }
                     }
                 ],
                 "responses": {
-                    "200": {
-                        "description": "Результат проверки",
+                    "201": {
+                        "description": "Достижение успешно создан",
                         "schema": {
-                            "$ref": "#/definitions/internal_handler.TelegramCheckResponse"
+                            "$ref": "#/definitions/pfo-vector_internal_model.AchievementResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный формат запроса или валидация не пройдена",
+                        "schema": {
+                            "type": "string"
                         }
                     },
                     "500": {
                         "description": "Ошибка сервера",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/achievement/all": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Возвращает данные достижений по ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "achievement"
+                ],
+                "summary": "Получение всех достижений",
+                "parameters": [
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Номер страницы",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "maximum": 100,
+                        "minimum": 1,
+                        "type": "integer",
+                        "default": 20,
+                        "description": "Размер страницы",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Данные пользователей с пагинацией",
+                        "schema": {
+                            "$ref": "#/definitions/pfo-vector_internal_model.UserListResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Ошибка получения списка пользователей",
                         "schema": {
                             "type": "string"
                         }
@@ -780,6 +846,26 @@ const docTemplate = `{
                 }
             }
         },
+        "internal_handler.CreateAchievementRequest": {
+            "type": "object",
+            "properties": {
+                "achivements_name": {
+                    "type": "string"
+                },
+                "condition_type": {
+                    "type": "string"
+                },
+                "condition_value": {
+                    "type": "integer"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "icon_name": {
+                    "type": "string"
+                }
+            }
+        },
         "internal_handler.CreateEventRequest": {
             "type": "object",
             "properties": {
@@ -835,10 +921,6 @@ const docTemplate = `{
                     "description": "Обязательно (NOT NULL в БД)",
                     "type": "string"
                 },
-                "telegram_id": {
-                    "description": "UNIQUE в БД",
-                    "type": "integer"
-                },
                 "visited_events_count": {
                     "description": "Если nil -\u003e БД поставит 0",
                     "type": "integer"
@@ -876,23 +958,6 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_handler.TelegramCheckResponse": {
-            "type": "object",
-            "properties": {
-                "exists": {
-                    "type": "boolean"
-                },
-                "message": {
-                    "type": "string"
-                },
-                "status": {
-                    "type": "string"
-                },
-                "user_id": {
-                    "type": "integer"
-                }
-            }
-        },
         "internal_handler.UpdateUserRequest": {
             "type": "object",
             "properties": {
@@ -923,10 +988,30 @@ const docTemplate = `{
                 "telegram": {
                     "type": "string"
                 },
-                "telegram_id": {
+                "visited_events_count": {
+                    "type": "integer"
+                }
+            }
+        },
+        "pfo-vector_internal_model.AchievementResponse": {
+            "type": "object",
+            "properties": {
+                "achivements_name": {
+                    "type": "string"
+                },
+                "condition_type": {
+                    "type": "string"
+                },
+                "condition_value": {
                     "type": "integer"
                 },
-                "visited_events_count": {
+                "description": {
+                    "type": "string"
+                },
+                "icon_name": {
+                    "type": "string"
+                },
+                "id": {
                     "type": "integer"
                 }
             }
@@ -1071,9 +1156,6 @@ const docTemplate = `{
                 },
                 "telegram": {
                     "type": "string"
-                },
-                "telegram_id": {
-                    "type": "integer"
                 },
                 "visited_events_count": {
                     "type": "integer"
