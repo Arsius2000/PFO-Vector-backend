@@ -119,6 +119,44 @@ const docTemplate = `{
                 }
             }
         },
+        "/auth/check/{telegram_username}": {
+            "get": {
+                "description": "Проверяет, существует ли пользователь по telegram username",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Проверка существования пользователя по telegram_username",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Telegram username",
+                        "name": "telegram_username",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Результат проверки",
+                        "schema": {
+                            "$ref": "#/definitions/internal_handler.TelegramCheckResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка сервера",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/auth/telegram": {
             "post": {
                 "description": "Авторизация только для существующих пользователей. Автоматически обновляет telegram username",
@@ -951,6 +989,23 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "token": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "internal_handler.TelegramCheckResponse": {
+            "type": "object",
+            "properties": {
+                "exists": {
+                    "type": "boolean"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "status": {
                     "type": "string"
                 },
                 "user_id": {

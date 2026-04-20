@@ -63,6 +63,7 @@ func main() {
 		// --- Авторизация через Telegram ---
 	telegramAuthHandler := handler.NewTelegramAuthHandler(queries)
 	r.Post("/auth/telegram", telegramAuthHandler.TelegramAuth)
+	r.Post("/auth/check/{telegram_username}", telegramAuthHandler.TelegramAuth)
 
 	//
     

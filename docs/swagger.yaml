@@ -81,6 +81,17 @@ definitions:
       user_id:
         type: integer
     type: object
+  internal_handler.TelegramCheckResponse:
+    properties:
+      exists:
+        type: boolean
+      message:
+        type: string
+      status:
+        type: string
+      user_id:
+        type: integer
+    type: object
   internal_handler.UpdateUserRequest:
     properties:
       avatar_url:
@@ -288,6 +299,31 @@ paths:
       summary: Получение всех достижений
       tags:
       - achievement
+  /auth/check/{telegram_username}:
+    get:
+      consumes:
+      - application/json
+      description: Проверяет, существует ли пользователь по telegram username
+      parameters:
+      - description: Telegram username
+        in: path
+        name: telegram_username
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Результат проверки
+          schema:
+            $ref: '#/definitions/internal_handler.TelegramCheckResponse'
+        "500":
+          description: Ошибка сервера
+          schema:
+            type: string
+      summary: Проверка существования пользователя по telegram_username
+      tags:
+      - auth
   /auth/telegram:
     post:
       consumes:
