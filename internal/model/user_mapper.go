@@ -37,11 +37,11 @@ func MapUserFromRepo(u repository.User) UserResponse {
         avatarURL = &v
     }
 
-    var telegramID *int32
-    if u.TelegramID.Valid {
-        v := u.TelegramID.Int32
-        telegramID = &v
-    }
+    // var telegramID *int32
+    // if u.TelegramID.Valid {
+    //     v := u.TelegramID.Int32
+    //     telegramID = &v
+    // }
 
     var joinDate *time.Time
     if u.JoinDate.Valid {
