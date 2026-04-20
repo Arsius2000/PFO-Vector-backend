@@ -9,6 +9,7 @@ import (
 	"strconv"
 	"strings"
 
+	"pfo-vector/internal/middleware"
 	"pfo-vector/internal/model"
 	"pfo-vector/internal/repository"
 	"pfo-vector/internal/service"
@@ -159,6 +160,8 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 func  (h *UserHandler) ImportUsers(w http.ResponseWriter, r *http.Request){
 
 	ctx := r.Context()
+
+
 	//Проверка на правильность метода
 	if r.Method!=http.MethodPost{
 		http.Error(w,"Method not allowed",http.StatusMethodNotAllowed)
@@ -225,13 +228,34 @@ func  (h *UserHandler) ImportUsers(w http.ResponseWriter, r *http.Request){
 func (h *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
     ctx := r.Context()
 
+	role := ctx.Value(middleware.CtxRole)
+	userID := ctx.Value(middleware.CtxUserID)
+
+
+
+	userID, ok := r.Context().Value(middleware.CtxUserID).(int32)
+	if !ok {
+		http.Error(w, "invalid user id", http.StatusUnauthorized)
+		return
+	}
+
+	role, ok = r.Context().Value(middleware.CtxRole).(string)
+	if !ok {
+		http.Error(w, "invalid role", http.StatusUnauthorized)
+		return
+	}
+
     idStr := chi.URLParam(r, "id")
     id, err := strconv.ParseInt(idStr, 10, 32)
     if err != nil {
         http.Error(w, "Invalid ID", http.StatusBadRequest)
         return
     }
-
+	//Проверка роли ,ЕСли роль админ может менять всех иначе только себя
+	if role != "админ" && userID != int32(id) {
+    http.Error(w, "forbidden", http.StatusForbidden)
+    return
+	}
     var req UpdateUserRequest
     if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
         http.Error(w, "Неверный формат JSON", http.StatusBadRequest)
