@@ -115,7 +115,7 @@ func (h *TelegramAuthHandler) TelegramAuth(w http.ResponseWriter, r *http.Reques
 	}
 
 	// 5. Генерируем JWT токен
-	token, err := generateJWT(user.ID, user.TelegramID.Int32)
+	token, err := generateJWT(user.ID, user.TelegramID.Int32,user.Role.String)
 	if err != nil {
 		http.Error(w, "Ошибка генерации токена", http.StatusInternalServerError)
 		return
