@@ -340,6 +340,11 @@ const docTemplate = `{
         },
         "/users/add": {
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Создает нового пользователя с переданными данными",
                 "consumes": [
                     "application/json"
@@ -392,6 +397,11 @@ const docTemplate = `{
         },
         "/users/all": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Возвращает данные пользователей по ID",
                 "consumes": [
                     "application/json"
@@ -440,6 +450,11 @@ const docTemplate = `{
         },
         "/users/all/Name": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Возвращает данные пользователей по Full_name",
                 "consumes": [
                     "application/json"
@@ -488,6 +503,11 @@ const docTemplate = `{
         },
         "/users/all/Rating": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Возвращает данные пользователей по Rating",
                 "consumes": [
                     "application/json"
@@ -536,6 +556,11 @@ const docTemplate = `{
         },
         "/users/import-users": {
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Загружает Excel-файл и импортирует пользователей",
                 "consumes": [
                     "multipart/form-data"
@@ -586,6 +611,11 @@ const docTemplate = `{
         },
         "/users/{id}": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Возвращает данные пользователя по ID",
                 "consumes": [
                     "application/json"
@@ -669,6 +699,11 @@ const docTemplate = `{
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Частично обновляет данные пользователя по ID",
                 "consumes": [
                     "application/json"

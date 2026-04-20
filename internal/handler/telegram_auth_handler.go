@@ -10,7 +10,7 @@ import (
 
 	"pfo-vector/internal/repository"
 
-	"github.com/go-chi/chi/v5"
+
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
@@ -82,24 +82,31 @@ func (h *TelegramAuthHandler) TelegramAuth(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	// 3. Ищем существующего пользователя: сначала по telegram_id, затем по username
-	user, err := h.queries.GetUserByTelegramID(ctx, pgtype.Int4{Int32: int32(req.TelegramID), Valid: true})
-	if err != nil {
-		if !errors.Is(err, pgx.ErrNoRows) {
-			http.Error(w, "Ошибка сервера", http.StatusInternalServerError)
-			return
-		}
-
-		user, err = h.queries.GetUserByTelegramUsername(ctx, req.Username)
+	// 
+	var user repository.User
+	var err error
+	//ЕСли телеграм id не равен нулю ищем по TelegramID
+	if req.TelegramID!=0{
+		user, err = h.queries.GetUserByTelegramID(ctx, pgtype.Int4{Int32: int32(req.TelegramID), Valid: true})
 		if err != nil {
-			if errors.Is(err, pgx.ErrNoRows) {
-				http.Error(w, "Пользователь не найден", http.StatusUnauthorized)
-				return
-			}
+			 
 			http.Error(w, "Ошибка сервера", http.StatusInternalServerError)
 			return
 		}
+	
 	}
+
+	//ЕСли равен 0 ,то ищем по @USErname
+	user, err = h.queries.GetUserByTelegramUsername(ctx, req.Username)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			http.Error(w, "Пользователь не найден", http.StatusUnauthorized)
+			return
+		}
+		http.Error(w, "Ошибка сервера", http.StatusInternalServerError)
+		return
+	}
+	
 
 	// 4. Обновляем telegram-данные существующего пользователя
 	updateParams := repository.UpdateUserTelegramDataParams{
@@ -135,49 +142,7 @@ func (h *TelegramAuthHandler) TelegramAuth(w http.ResponseWriter, r *http.Reques
 	json.NewEncoder(w).Encode(response)
 }
 
-// CheckTelegramUsername godoc
-// @Summary      Проверка существования пользователя по telegram_username
-// @Description  Проверяет, существует ли пользователь по telegram username
-// @Tags         auth
-// @Accept       json
-// @Produce      json
-// @Param        telegram_username   path      string  true  "Telegram username"
-// @Success      200  {object}  handler.TelegramCheckResponse  "Результат проверки"
-// @Failure      500  {string}  string  "Ошибка сервера"
-// @Router       /auth/check/{telegram_username} [get]
-func (h *TelegramAuthHandler) CheckTelegramUsername(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	username := strings.TrimSpace(chi.URLParam(r, "telegram_username"))
-	if username == "" {
-		http.Error(w, "telegram_username обязателен", http.StatusBadRequest)
-		return
-	}
 
-	user, err := h.queries.GetUserByTelegramUsername(ctx, username)
-	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			w.Header().Set("Content-Type", "application/json")
-			w.WriteHeader(http.StatusOK)
-			_ = json.NewEncoder(w).Encode(TelegramCheckResponse{
-				Exists:  false,
-				Status:  "not_found",
-				Message: "Пользователь не найден",
-			})
-			return
-		}
-		http.Error(w, "Ошибка сервера", http.StatusInternalServerError)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	_ = json.NewEncoder(w).Encode(TelegramCheckResponse{
-		Exists:  true,
-		UserID:  user.ID,
-		Status:  "found",
-		Message: "Пользователь найден",
-	})
-}
 
 // generateJWT создаёт JWT токен для пользователя
 func generateJWT(userID int32, telegramID int32,role string) (string, error) {

@@ -479,6 +479,8 @@ paths:
           description: Пользователь не найден
           schema:
             type: string
+      security:
+      - BearerAuth: []
       summary: Получение пользователя
       tags:
       - users
@@ -521,6 +523,8 @@ paths:
           description: Ошибка сервера
           schema:
             type: string
+      security:
+      - BearerAuth: []
       summary: Обновление пользователя
       tags:
       - users
@@ -555,6 +559,8 @@ paths:
           description: Ошибка сервера
           schema:
             type: string
+      security:
+      - BearerAuth: []
       summary: Создание пользователя
       tags:
       - users
@@ -588,6 +594,8 @@ paths:
           description: Ошибка получения списка пользователей
           schema:
             type: string
+      security:
+      - BearerAuth: []
       summary: Получение всех пользователей
       tags:
       - users
@@ -621,6 +629,8 @@ paths:
           description: Ошибка получения списка пользователей
           schema:
             type: string
+      security:
+      - BearerAuth: []
       summary: Получение всех пользователей
       tags:
       - users
@@ -654,6 +664,8 @@ paths:
           description: Ошибка получения списка пользователей
           schema:
             type: string
+      security:
+      - BearerAuth: []
       summary: Получение всех пользователей
       tags:
       - users
@@ -687,6 +699,8 @@ paths:
           description: Ошибка сервера
           schema:
             type: string
+      security:
+      - BearerAuth: []
       summary: Импорт пользователей из Excel
       tags:
       - users

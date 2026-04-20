@@ -76,7 +76,7 @@ func MapUserFromRepo(u repository.User) UserResponse {
         Telegram:           u.Telegram,
         AvatarURL:          avatarURL,
         Role:               role,
-        TelegramID:         telegramID,
+        // TelegramID:         telegramID,
         JoinDate:           joinDate,
     }
 }

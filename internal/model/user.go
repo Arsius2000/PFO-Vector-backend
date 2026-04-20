@@ -14,7 +14,6 @@ type UserResponse struct {
     Telegram           string     `json:"telegram"`
     AvatarURL          *string    `json:"avatar_url,omitempty"`
     Role               string     `json:"role"`
-    TelegramID         *int32     `json:"telegram_id,omitempty"`
     JoinDate           *time.Time `json:"join_date,omitempty"`
 }
 

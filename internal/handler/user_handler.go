@@ -1,9 +1,9 @@
 package handler
 
 import (
-	"database/sql"
 	"encoding/json"
 	"errors"
+
 
 	"net/http"
 	"strconv"
@@ -15,6 +15,7 @@ import (
 	"pfo-vector/internal/service"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/lib/pq"
 )
@@ -29,7 +30,7 @@ type UpdateUserRequest struct {
     Telegram           *string `json:"telegram,omitempty"`
     AvatarURL          *string `json:"avatar_url,omitempty"`
     Role               *string `json:"role,omitempty"`
-    TelegramID         *int32  `json:"telegram_id,omitempty"`
+
 }
 
 type UserHandler struct{
@@ -54,7 +55,7 @@ type CreateUserRequest struct {
 	PhoneNumber        *string `json:"phone_number,omitempty"`
 	Telegram           string  `json:"telegram"`                     // Обязательно (NOT NULL в БД)
 	AvatarURL          *string `json:"avatar_url,omitempty"`
-	TelegramID         *int32  `json:"telegram_id,omitempty"`        // UNIQUE в БД
+       // UNIQUE в БД
 	// Role не нужен в запросе, если нас устраивает дефолт 'боец'. 
 	// Если нужно менять роль при создании, добавьте поле сюда.
 }
@@ -70,6 +71,7 @@ type CreateUserRequest struct {
 // @Failure      400   {string}  string                     "Неверный формат запроса или валидация не пройдена"
 // @Failure      409   {string}  string                     "Пользователь с таким telegram_id уже существует"
 // @Failure      500   {string}  string                     "Ошибка сервера"
+// @Security BearerAuth 
 // @Router       /users/add [post]
 func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -89,10 +91,7 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Поле telegram обязательно", http.StatusBadRequest)
 		return
 	}
-	if req.TelegramID != nil && *req.TelegramID <= 0 {
-		http.Error(w, "telegram_id должен быть положительным числом", http.StatusBadRequest)
-		return
-	}
+
 
 	// --- ХЕЛПЕРЫ ДЛЯ PGTYPE ---
 
@@ -124,7 +123,7 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 		PhoneNumber:        nullText(req.PhoneNumber),
 		Telegram:           req.Telegram,                // string (NOT NULL в БД)
 		AvatarUrl:          nullText(req.AvatarURL),     // <--- Исправленное имя поля!
-		TelegramID:         nullInt4(req.TelegramID),
+
 	}
 
 	// Выполнение запроса
@@ -156,6 +155,7 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 // @Failure      400   {string}  string              "Некорректный файл или данные"
 // @Failure      409   {string}  string              "Конфликт уникальных данных"
 // @Failure      500   {string}  string              "Ошибка сервера"
+// @Security BearerAuth 
 // @Router       /users/import-users [post]
 func  (h *UserHandler) ImportUsers(w http.ResponseWriter, r *http.Request){
 
@@ -224,6 +224,7 @@ func  (h *UserHandler) ImportUsers(w http.ResponseWriter, r *http.Request){
 // @Failure      404   {string}  string                     "Пользователь не найден"
 // @Failure      409   {string}  string                     "Пользователь с таким telegram_id уже существует"
 // @Failure      500   {string}  string                     "Ошибка сервера"
+// @Security BearerAuth 
 // @Router       /users/{id} [patch]
 func (h *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
     ctx := r.Context()
@@ -252,7 +253,7 @@ func (h *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
         return
     }
 	//Проверка роли ,ЕСли роль админ может менять всех иначе только себя
-	if role != "админ" && userID != int32(id) {
+	if role != "Админ" && userID != int32(id) {
     http.Error(w, "forbidden", http.StatusForbidden)
     return
 	}
@@ -287,12 +288,11 @@ func (h *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
         Telegram:           nullText(req.Telegram),
         AvatarUrl:          nullText(req.AvatarURL),
         Role:               nullText(req.Role),
-        TelegramID:         nullInt4(req.TelegramID),
     }
 
     user, err := h.queries.UpdateUser(ctx, args)
     if err != nil {
-        if err == sql.ErrNoRows {
+        if errors.Is(err,pgx.ErrNoRows) {
             http.Error(w, "User not found", http.StatusNotFound)
             return
         }
@@ -300,7 +300,8 @@ func (h *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
             http.Error(w, "Пользователь с таким telegram_id уже существует", http.StatusConflict)
             return
         }
-        http.Error(w, "Ошибка сервера", http.StatusInternalServerError)
+		
+        http.Error(w, "Ошибка сервера ",http.StatusInternalServerError)
         return
     }
 
@@ -320,6 +321,7 @@ func (h *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 // @Param        id   path      int  true  "ID пользователя"
 // @Success      200  {object}  model.UserResponse  "Данные пользователя"
 // @Failure      404  {string}  string  "Пользователь не найден"
+// @Security BearerAuth 
 // @Router       /users/{id} [get]
 func (h *UserHandler) GetUser(w http.ResponseWriter,r *http.Request){
 
@@ -332,7 +334,7 @@ func (h *UserHandler) GetUser(w http.ResponseWriter,r *http.Request){
     }
 
 	user,err :=h.queries.GetUser(r.Context(),int32(id))
-	if err == sql.ErrNoRows{
+	if errors.Is(err,pgx.ErrNoRows){
 		http.Error(w,"User not found",http.StatusNotFound)
 		return
 	}
@@ -360,6 +362,7 @@ func (h *UserHandler) GetUser(w http.ResponseWriter,r *http.Request){
 // @Failure      404  {string}  string  "Ошибка получения списка пользователей"
 // @Param page query int false "Номер страницы" default(1) minimum(1)
 // @Param limit query int false "Размер страницы" default(20) minimum(1) maximum(100)
+// @Security BearerAuth 
 // @Router       /users/all [get]
 func (h *UserHandler) ListUsersId(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -432,6 +435,7 @@ func (h *UserHandler) ListUsersId(w http.ResponseWriter, r *http.Request) {
 // @Failure      404  {string}  string  "Ошибка получения списка пользователей"
 // @Param page query int false "Номер страницы" default(1) minimum(1)
 // @Param limit query int false "Размер страницы" default(20) minimum(1) maximum(100)
+// @Security BearerAuth 
 // @Router       /users/all/Name [get]
 func (h *UserHandler) ListUsersName(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -507,6 +511,7 @@ func (h *UserHandler) ListUsersName(w http.ResponseWriter, r *http.Request) {
 // @Failure      404  {string}  string  "Ошибка получения списка пользователей"
 // @Param page query int false "Номер страницы" default(1) minimum(1)
 // @Param limit query int false "Размер страницы" default(20) minimum(1) maximum(100)
+// @Security BearerAuth 
 // @Router       /users/all/Rating [get]
 func (h *UserHandler) ListUsersRating(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -596,7 +601,7 @@ func (h *UserHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
     }
     
     err = h.queries.DeleteUser(r.Context(), int32(id))  // Выполняем DELETE
-    if err == sql.ErrNoRows {
+    if errors.Is(err,pgx.ErrNoRows) {
         http.Error(w, "User not found", http.StatusNotFound)
         return
     }

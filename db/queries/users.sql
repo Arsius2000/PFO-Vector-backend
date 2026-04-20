@@ -52,7 +52,6 @@ SET
     telegram = COALESCE(sqlc.narg('telegram'), telegram),
     avatar_url = COALESCE(sqlc.narg('avatar_url'), avatar_url),
     role = COALESCE(sqlc.narg('role'), role),
-    telegram_id = COALESCE(sqlc.narg('telegram_id'), telegram_id)
 WHERE id = sqlc.arg('id')
 RETURNING *;
 

@@ -62,25 +62,10 @@ func main() {
 		// --- Авторизация через Telegram ---
 	telegramAuthHandler := handler.NewTelegramAuthHandler(queries)
 	r.Post("/auth/telegram", telegramAuthHandler.TelegramAuth)
-	r.Get("/auth/check/{telegram_username}", telegramAuthHandler.CheckTelegramUsername)
+
 	//
     
-	r.Post("/users/import-users",userHandler.ImportUsers)
-	r.Post("/profile/event/add",userEventHandler.AddUserEvent)
-	r.Get("/profile/{user_id}/events" ,userEventHandler.UserEventListId)
-	r.Patch("/users/{id}", userHandler.UpdateUser)
-    r.Get("/users/{id}", userHandler.GetUser)
-	
-	r.Get("/users/all",userHandler.ListUsersId)
-	r.Get("/users/all/Name",userHandler.ListUsersName)
-    r.Get("/users/all/Rating",userHandler.ListUsersRating)
 
-	
-
-
-	
-	r.Get("/events/{id}",eventHandler.GetEvent)
-	r.Get("/events/all",eventHandler.ListEventsId)
 	secret := os.Getenv("JWT_SECRET")
 	if secret == "" {
 		secret = "dev_secret_key_change_me" // fallback для разработки
@@ -89,6 +74,19 @@ func main() {
 	r.Group(func(r chi.Router) {
 		r.Use(middleware.JWTAuth(secret))
 
+		
+		r.Post("/users/import-users",userHandler.ImportUsers)
+		r.Post("/profile/event/add",userEventHandler.AddUserEvent)
+		r.Get("/profile/{user_id}/events" ,userEventHandler.UserEventListId)
+		r.Patch("/users/{id}", userHandler.UpdateUser)
+		r.Get("/users/{id}", userHandler.GetUser)
+		
+		r.Get("/users/all",userHandler.ListUsersId)
+		r.Get("/users/all/Name",userHandler.ListUsersName)
+		r.Get("/users/all/Rating",userHandler.ListUsersRating)
+
+		r.Get("/events/{id}",eventHandler.GetEvent)
+		r.Get("/events/all",eventHandler.ListEventsId)
 		r.Delete("/users/{id}",userHandler.DeleteUser)
 		r.Post("/users/add", userHandler.CreateUser)
 		r.Post("/events/add",eventHandler.CreateEvent)
