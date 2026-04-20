@@ -43,9 +43,22 @@ func JWTAuth(secret string) func(http.Handler) http.Handler {
                 http.Error(w, "invalid token claims", http.StatusUnauthorized)
                 return
             }
+			
 
-            ctx := context.WithValue(r.Context(), CtxUserID, claims["user_id"])
-            ctx = context.WithValue(ctx, CtxRole, claims["role"])
+			userIDf, ok := claims["user_id"].(float64)
+			if !ok {
+				http.Error(w, "invalid user_id claim", http.StatusUnauthorized)
+				return
+			}
+
+			role, ok := claims["role"].(string)
+			if !ok {
+				http.Error(w, "invalid role claim", http.StatusUnauthorized)
+				return
+			}
+
+            ctx := context.WithValue(r.Context(), CtxUserID, int32(userIDf))
+            ctx = context.WithValue(ctx, CtxRole, role)
 
             next.ServeHTTP(w, r.WithContext(ctx))
         })

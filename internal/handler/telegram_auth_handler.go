@@ -180,7 +180,7 @@ func (h *TelegramAuthHandler) CheckTelegramUsername(w http.ResponseWriter, r *ht
 }
 
 // generateJWT создаёт JWT токен для пользователя
-func generateJWT(userID int32, telegramID int32) (string, error) {
+func generateJWT(userID int32, telegramID int32,role string) (string, error) {
 	// Берём секрет из переменных окружения
 	secret := os.Getenv("JWT_SECRET")
 	if secret == "" {
@@ -191,6 +191,7 @@ func generateJWT(userID int32, telegramID int32) (string, error) {
 	claims := jwt.MapClaims{
 		"user_id":     userID,
 		"telegram_id": telegramID,
+		"role":			role,
 		"exp":         time.Now().Add(24 * time.Hour).Unix(), // Токен живёт 24 часа
 		"issued_at":   time.Now().Unix(),
 	}
