@@ -9,14 +9,13 @@ INSERT INTO achievements(
 VALUES ($1, $2, $3, $4, $5)
 RETURNING *;
 
+-- name: ListAchievementsId :many
+SELECT *
+FROM achievements
+ORDER BY id ASC 
+LIMIT sqlc.arg('limit')
+OFFSET sqlc.arg('offset');
 
--- name: UpdateAchievements :one
-
--- name: UpdateAchievements :one
-UPDATE achievements
-SET achivements_name = $2,icon_name = $3,description = $4,condition_type = $5,condition_value = $6
-WHERE id = $1
-RETURNING *;
 
 -- name: DeleteAchievements :exec
 DELETE FROM achievements

@@ -21,10 +21,9 @@ INSERT INTO users (
     visited_events_count,
     phone_number,
     telegram,
-    avatar_url,
-    telegram_id
+    avatar_url
 )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
 RETURNING id, full_name, gender, direction_vector, study_group, rating, visited_events_count, phone_number, telegram, avatar_url, join_date, role, telegram_id
 `
 
@@ -38,7 +37,6 @@ type CreateUserParams struct {
 	PhoneNumber        pgtype.Text `json:"phone_number"`
 	Telegram           string      `json:"telegram"`
 	AvatarUrl          pgtype.Text `json:"avatar_url"`
-	TelegramID         pgtype.Int4 `json:"telegram_id"`
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
@@ -52,7 +50,6 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 		arg.PhoneNumber,
 		arg.Telegram,
 		arg.AvatarUrl,
-		arg.TelegramID,
 	)
 	var i User
 	err := row.Scan(
@@ -262,9 +259,8 @@ SET
     phone_number = COALESCE($7, phone_number),
     telegram = COALESCE($8, telegram),
     avatar_url = COALESCE($9, avatar_url),
-    role = COALESCE($10, role),
-    telegram_id = COALESCE($11, telegram_id)
-WHERE id = $12
+    role = COALESCE($10, role)
+WHERE id = $11
 RETURNING id, full_name, gender, direction_vector, study_group, rating, visited_events_count, phone_number, telegram, avatar_url, join_date, role, telegram_id
 `
 
@@ -279,7 +275,6 @@ type UpdateUserParams struct {
 	Telegram           pgtype.Text `json:"telegram"`
 	AvatarUrl          pgtype.Text `json:"avatar_url"`
 	Role               pgtype.Text `json:"role"`
-	TelegramID         pgtype.Int4 `json:"telegram_id"`
 	ID                 int32       `json:"id"`
 }
 
@@ -295,7 +290,6 @@ func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, e
 		arg.Telegram,
 		arg.AvatarUrl,
 		arg.Role,
-		arg.TelegramID,
 		arg.ID,
 	)
 	var i User

@@ -8,10 +8,9 @@ INSERT INTO users (
     visited_events_count,
     phone_number,
     telegram,
-    avatar_url,
-    telegram_id
+    avatar_url
 )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
 RETURNING *;
 
 -- name: GetUser :one
@@ -51,7 +50,7 @@ SET
     phone_number = COALESCE(sqlc.narg('phone_number'), phone_number),
     telegram = COALESCE(sqlc.narg('telegram'), telegram),
     avatar_url = COALESCE(sqlc.narg('avatar_url'), avatar_url),
-    role = COALESCE(sqlc.narg('role'), role),
+    role = COALESCE(sqlc.narg('role'), role)
 WHERE id = sqlc.arg('id')
 RETURNING *;
 

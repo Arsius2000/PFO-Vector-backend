@@ -62,8 +62,48 @@ func (q *Queries) DeleteAchievements(ctx context.Context, id int32) error {
 	return err
 }
 
-const updateAchievements = `-- name: UpdateAchievements :one
+const listAchievementsId = `-- name: ListAchievementsId :many
+SELECT id, achivements_name, icon_name, description, condition_type, condition_value, created_at
+FROM achievements
+ORDER BY id ASC 
+LIMIT $2
+OFFSET $1
+`
 
+type ListAchievementsIdParams struct {
+	Offset int32 `json:"offset"`
+	Limit  int32 `json:"limit"`
+}
+
+func (q *Queries) ListAchievementsId(ctx context.Context, arg ListAchievementsIdParams) ([]Achievement, error) {
+	rows, err := q.db.Query(ctx, listAchievementsId, arg.Offset, arg.Limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Achievement{}
+	for rows.Next() {
+		var i Achievement
+		if err := rows.Scan(
+			&i.ID,
+			&i.AchivementsName,
+			&i.IconName,
+			&i.Description,
+			&i.ConditionType,
+			&i.ConditionValue,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const updateAchievements = `-- name: UpdateAchievements :one
 UPDATE achievements
 SET achivements_name = $2,icon_name = $3,description = $4,condition_type = $5,condition_value = $6
 WHERE id = $1

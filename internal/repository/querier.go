@@ -27,6 +27,7 @@ type Querier interface {
 	GetUserByTelegramID(ctx context.Context, telegramID pgtype.Int4) (User, error)
 	GetUserByTelegramUsername(ctx context.Context, telegram string) (User, error)
 	GetUserEventsByUserID(ctx context.Context, arg GetUserEventsByUserIDParams) ([]Event, error)
+	ListAchievementsId(ctx context.Context, arg ListAchievementsIdParams) ([]Achievement, error)
 	ListEventsDate(ctx context.Context, arg ListEventsDateParams) ([]Event, error)
 	ListEventsId(ctx context.Context, arg ListEventsIdParams) ([]Event, error)
 	ListEventsTitle(ctx context.Context, arg ListEventsTitleParams) ([]Event, error)

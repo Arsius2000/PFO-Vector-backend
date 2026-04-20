@@ -56,6 +56,7 @@ func main() {
     userHandler := handler.NewUserHandler(queries,service)
 	eventHandler := handler.NewEventHandler(queries)
 	userEventHandler := handler.NewUserEventHandler(queries)
+	userAchievementsHandler := handler.NewAchievementsHandler(queries)
     
     //РУЧКИ
      r := chi.NewRouter()
@@ -90,6 +91,8 @@ func main() {
 		r.Delete("/users/{id}",userHandler.DeleteUser)
 		r.Post("/users/add", userHandler.CreateUser)
 		r.Post("/events/add",eventHandler.CreateEvent)
+
+		r.Post("/achievement/add",userAchievementsHandler.CreateAchievement)
 	})
 	// --- Подключение Swagger ---
 	// Маршрут для Swagger UI будет доступен по адресу http://localhost:8080/swagger/index.html
