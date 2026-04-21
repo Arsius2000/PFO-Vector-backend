@@ -244,6 +244,7 @@ func (h *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+
     idStr := chi.URLParam(r, "id")
     id, err := strconv.ParseInt(idStr, 10, 32)
     if err != nil {
@@ -252,7 +253,7 @@ func (h *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
     }
 	//Проверка роли ,ЕСли роль админ может менять всех иначе только себя
 	if role != "Админ" && userID != int32(id) {
-    http.Error(w, "forbidden", http.StatusForbidden)
+    http.Error(w, "Вы не являетесь Админом и не можете изменять других пользователей", http.StatusForbidden)
     return
 	}
     var req UpdateUserRequest
