@@ -107,19 +107,19 @@ func (h *TelegramAuthHandler) TelegramAuth(w http.ResponseWriter, r *http.Reques
 		return
 	}
 	
-
+	// Закоментил на момент тестов
 	// 4. Обновляем telegram-данные существующего пользователя
-	updateParams := repository.UpdateUserTelegramDataParams{
-		ID:          user.ID,
-		Telegram:    pgtype.Text{String: req.Username, Valid: true},
-		TelegramID:  pgtype.Int4{Int32: int32(req.TelegramID), Valid: true},
-		PhoneNumber: pgtype.Text{String: req.PhoneNumber, Valid: req.PhoneNumber != ""},
-	}
-	user, err = h.queries.UpdateUserTelegramData(ctx, updateParams)
-	if err != nil {
-		http.Error(w, "Ошибка обновления данных: "+err.Error(), http.StatusInternalServerError)
-		return
-	}
+	// updateParams := repository.UpdateUserTelegramDataParams{
+	// 	ID:          user.ID,
+	// 	Telegram:    pgtype.Text{String: req.Username, Valid: true},
+	// 	TelegramID:  pgtype.Int4{Int32: int32(req.TelegramID), Valid: true},
+	// 	PhoneNumber: pgtype.Text{String: req.PhoneNumber, Valid: req.PhoneNumber != ""},
+	// }
+	// user, err = h.queries.UpdateUserTelegramData(ctx, updateParams)
+	// if err != nil {
+	// 	http.Error(w, "Ошибка обновления данных: "+err.Error(), http.StatusInternalServerError)
+	// 	return
+	// }
 
 	// 5. Генерируем JWT токен
 	token, err := generateJWT(user.ID, user.TelegramID.Int32,user.Role.String)

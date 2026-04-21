@@ -11,6 +11,7 @@ import (
 )
 
 type Querier interface {
+	AddUserAchievements(ctx context.Context, arg AddUserAchievementsParams) error
 	AddUserEvent(ctx context.Context, arg AddUserEventParams) error
 	CreateAchievements(ctx context.Context, arg CreateAchievementsParams) (Achievement, error)
 	CreateEvent(ctx context.Context, arg CreateEventParams) (Event, error)
@@ -24,6 +25,7 @@ type Querier interface {
 	GetEventsByUser(ctx context.Context, arg GetEventsByUserParams) ([]Event, error)
 	GetNews(ctx context.Context, id int32) (News, error)
 	GetUser(ctx context.Context, id int32) (User, error)
+	GetUserAchievementsByUserID(ctx context.Context, arg GetUserAchievementsByUserIDParams) ([]Achievement, error)
 	GetUserByTelegramID(ctx context.Context, telegramID pgtype.Int4) (User, error)
 	GetUserByTelegramUsername(ctx context.Context, telegram string) (User, error)
 	GetUserEventsByUserID(ctx context.Context, arg GetUserEventsByUserIDParams) ([]Event, error)
@@ -35,7 +37,6 @@ type Querier interface {
 	ListUsersId(ctx context.Context, arg ListUsersIdParams) ([]User, error)
 	ListUsersName(ctx context.Context, arg ListUsersNameParams) ([]User, error)
 	ListUsersRating(ctx context.Context, arg ListUsersRatingParams) ([]User, error)
-	UpdateAchievements(ctx context.Context, arg UpdateAchievementsParams) (Achievement, error)
 	UpdateEvent(ctx context.Context, arg UpdateEventParams) (Event, error)
 	UpdateNews(ctx context.Context, arg UpdateNewsParams) (News, error)
 	UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error)

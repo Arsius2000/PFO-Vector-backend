@@ -1,5 +1,12 @@
 basePath: /
 definitions:
+  internal_handler.AddUserAchievementRequest:
+    properties:
+      achievement_id:
+        type: integer
+      user_id:
+        type: integer
+    type: object
   internal_handler.AddUserEventRequest:
     properties:
       event_id:
@@ -489,6 +496,34 @@ paths:
       summary: Получение всех мероприятий пользователя
       tags:
       - UserEvent
+  /profile/achievement/add:
+    post:
+      consumes:
+      - application/json
+      description: Добавляет достижения пользователю
+      parameters:
+      - description: Данные о пользователе и достижении
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/internal_handler.AddUserAchievementRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Достижение присвоенно
+          schema:
+            type: string
+        "500":
+          description: Ошибка сервера
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Добавление достижения пользователю
+      tags:
+      - UserAchievement
   /profile/event/add:
     post:
       consumes:

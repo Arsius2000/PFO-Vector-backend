@@ -65,7 +65,6 @@ type User struct {
 }
 
 type UserAchievement struct {
-	ID            int32              `json:"id"`
 	UserID        int32              `json:"user_id"`
 	AchievementID int32              `json:"achievement_id"`
 	AwardedAt     pgtype.Timestamptz `json:"awarded_at"`

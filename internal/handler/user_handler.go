@@ -229,8 +229,6 @@ func  (h *UserHandler) ImportUsers(w http.ResponseWriter, r *http.Request){
 func (h *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
     ctx := r.Context()
 
-	role := ctx.Value(middleware.CtxRole)
-	userID := ctx.Value(middleware.CtxUserID)
 
 
 
@@ -240,7 +238,7 @@ func (h *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	role, ok = r.Context().Value(middleware.CtxRole).(string)
+	role, ok := r.Context().Value(middleware.CtxRole).(string)
 	if !ok {
 		http.Error(w, "invalid role", http.StatusUnauthorized)
 		return

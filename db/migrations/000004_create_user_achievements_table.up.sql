@@ -1,10 +1,10 @@
 --Создаем таблицу
 CREATE TABLE  IF NOT EXISTS user_achievements(
-    id SERIAL PRIMARY KEY,
     user_id INT NOT NULL,
     achievement_id INT NOT NULL,
     awarded_at TIMESTAMPTZ DEFAULT NOW(),
     awarded_by INT NOT NULL,
+    PRIMARY KEY (user_id,achievement_id),
 
     --связываем таблицу user_achievements и users
     CONSTRAINT fk_achievements_user_id   

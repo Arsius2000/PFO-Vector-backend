@@ -335,6 +335,51 @@
                 }
             }
         },
+        "/profile/achievement/add": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Добавляет достижения пользователю",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "UserAchievement"
+                ],
+                "summary": "Добавление достижения пользователю",
+                "parameters": [
+                    {
+                        "description": "Данные о пользователе и достижении",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_handler.AddUserAchievementRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Достижение присвоенно",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка сервера",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/profile/event/add": {
             "post": {
                 "description": "Добавляет мероприятие пользователю",
@@ -867,6 +912,17 @@
         }
     },
     "definitions": {
+        "internal_handler.AddUserAchievementRequest": {
+            "type": "object",
+            "properties": {
+                "achievement_id": {
+                    "type": "integer"
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
         "internal_handler.AddUserEventRequest": {
             "type": "object",
             "properties": {
