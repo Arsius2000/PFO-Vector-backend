@@ -253,7 +253,7 @@ func (h *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
     }
 	//Проверка роли ,ЕСли роль админ может менять всех иначе только себя
 	if role != "Админ" && userID != int32(id) {
-    http.Error(w, "Вы не являетесь Админом и не можете изменять других пользователей", http.StatusForbidden)
+    http.Error(w, "Недостаточно прав .Вы можете изменять только себя", http.StatusForbidden)
     return
 	}
     var req UpdateUserRequest
