@@ -1050,22 +1050,28 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "audience": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "A-217"
                 },
                 "created_by": {
-                    "type": "integer"
+                    "type": "integer",
+                    "example": 7
                 },
                 "end_time": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "13:00"
                 },
                 "event_date": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "21.02.2007"
                 },
                 "start_time": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "12:00"
                 },
                 "title": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "Бойцы гладят скатерти"
                 },
                 "weight": {
                     "type": "integer"

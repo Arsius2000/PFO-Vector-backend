@@ -30,16 +30,22 @@ definitions:
   internal_handler.CreateEventRequest:
     properties:
       audience:
+        example: A-217
         type: string
       created_by:
+        example: 7
         type: integer
       end_time:
+        example: "13:00"
         type: string
       event_date:
+        example: 21.02.2007
         type: string
       start_time:
+        example: "12:00"
         type: string
       title:
+        example: Бойцы гладят скатерти
         type: string
       weight:
         type: integer

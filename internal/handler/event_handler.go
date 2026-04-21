@@ -24,13 +24,13 @@ func NewEventHandler(queries *repository.Queries) *EventHandler {
 }
 
 type CreateEventRequest struct {
-	EventDate model.CustomDate  `json:"event_date"`
-	StartTime *model.CustomTime `json:"start_time"`
-	EndTime   *model.CustomTime `json:"end_time"`
-	Title     *string           `json:"title"`
-	Audience  *string           `json:"audience"`
+	EventDate model.CustomDate  `json:"event_date" example:"21.02.2007"`
+	StartTime *model.CustomTime `json:"start_time" example:"12:00"`
+	EndTime   *model.CustomTime `json:"end_time" example:"13:00"`
+	Title     *string           `json:"title" example:"Бойцы гладят скатерти"`
+	Audience  *string           `json:"audience" example:"A-217"`
 	Weight    *int32            `json:"weight"`
-	CreatedBy int32             `json:"created_by"`
+	CreatedBy int32             `json:"created_by" example:"7"`
 }
 
 // CreateEvent godoc
@@ -43,7 +43,7 @@ type CreateEventRequest struct {
 // @Success      201   {object}  model.EventResponse            "Мероприятие успешно создано"
 // @Failure      400   {string}  string                     "Неверный формат запроса или валидация не пройдена"
 // @Failure      500   {string}  string                     "Ошибка сервера"
-// @Security BearerAuth 
+// @Security BearerAuth
 // @Router       /events/add [post]
 func (h *EventHandler) CreateEvent(w http.ResponseWriter, r *http.Request) {
 
@@ -73,23 +73,28 @@ func (h *EventHandler) CreateEvent(w http.ResponseWriter, r *http.Request) {
 		return pgtype.Int4{Int32: *i, Valid: true}
 	}
 
-	// Конвертация *time.Time → pgtype.Time
-	nullTime := func(t *time.Time) pgtype.Time {
-		pt := pgtype.Time{}
-		if t != nil {
-			pt.Scan(*t) // или используй Set
+	nullDate := func(d model.CustomDate) pgtype.Date {
+		t := time.Time(d)
+		if t.IsZero() {
+			return pgtype.Date{Valid: false}
 		}
-		return pt
-	}
-	// Конвертация time.Time → pgtype.Date
-	nullDate := func(t time.Time) pgtype.Date {
 		return pgtype.Date{Time: t, Valid: true}
 	}
 
+	nullTime := func(t *model.CustomTime) pgtype.Time {
+		if t == nil {
+			return pgtype.Time{Valid: false}
+		}
+		tm := time.Time(*t)
+		h, m, s := tm.Clock()
+		microseconds := int64(h)*3_600_000_000 + int64(m)*60_000_000 + int64(s)*1_000_000 + int64(tm.Nanosecond()/1_000)
+		return pgtype.Time{Microseconds: microseconds, Valid: true}
+	}
+
 	args := repository.CreateEventParams{
-		EventDate: nullDate(time.Time(req.EventDate)),
-		StartTime: nullTime((*time.Time)(req.StartTime)),
-		EndTime:   nullTime((*time.Time)(req.EndTime)),
+		EventDate: nullDate(req.EventDate),
+		StartTime: nullTime(req.StartTime),
+		EndTime:   nullTime(req.EndTime),
 		Title:     nullText(req.Title),
 		Audience:  nullText(req.Audience),
 		Weight:    nullInt4(req.Weight),
@@ -158,7 +163,7 @@ func (h *EventHandler) GetEvent(w http.ResponseWriter, r *http.Request) {
 // @Failure      404  {string}  string  "Ошибка получения списка мероприятий"
 // @Param page query int false "Номер страницы" default(1) minimum(1)
 // @Param limit query int false "Размер страницы" default(20) minimum(1) maximum(100)
-// @Security BearerAuth 
+// @Security BearerAuth
 // @Router       /events/all [get]
 func (h *EventHandler) ListEventsId(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()

@@ -22,19 +22,19 @@ func pgTimeToTime(t pgtype.Time) time.Time {
 }
 
 func MapEventFromRepo(e repository.Event) EventResponse {
-	eventDate := time.Time{}
+	eventDate := ""
 	if e.EventDate.Valid {
-		eventDate = e.EventDate.Time
+		eventDate = e.EventDate.Time.Format("02.01.2006")
 	}
 
-	startTime := time.Time{}
+	startTime := ""
 	if e.StartTime.Valid {
-		startTime = pgTimeToTime(e.StartTime)
+		startTime = pgTimeToTime(e.StartTime).Format("15:04")
 	}
 
-	endTime := time.Time{}
+	endTime := ""
 	if e.EndTime.Valid {
-		endTime = pgTimeToTime(e.EndTime)
+		endTime = pgTimeToTime(e.EndTime).Format("15:04")
 	}
 
 	title := ""
