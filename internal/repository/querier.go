@@ -20,7 +20,7 @@ type Querier interface {
 	DeleteAchievements(ctx context.Context, id int32) error
 	DeleteEvent(ctx context.Context, id int32) error
 	DeleteNews(ctx context.Context, id int32) error
-	DeleteUser(ctx context.Context, id int32) error
+	DeleteUser(ctx context.Context, id int32) (int64, error)
 	GetEvent(ctx context.Context, id int32) (Event, error)
 	GetEventsByUser(ctx context.Context, arg GetEventsByUserParams) ([]Event, error)
 	GetNews(ctx context.Context, id int32) (News, error)

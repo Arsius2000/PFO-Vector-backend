@@ -54,6 +54,6 @@ SET
 WHERE id = sqlc.arg('id')
 RETURNING *;
 
--- name: DeleteUser :exec
+-- name: DeleteUser :execrows
 DELETE FROM users
 WHERE id = $1;

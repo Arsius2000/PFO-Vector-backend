@@ -598,8 +598,8 @@ func (h *UserHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
         return
     }
     
-    err = h.queries.DeleteUser(r.Context(), int32(id))  // Выполняем DELETE
-    if errors.Is(err,pgx.ErrNoRows) {
+    rows,err := h.queries.DeleteUser(r.Context(), int32(id))  // Выполняем DELETE
+    if rows == 0  {
         http.Error(w, "User not found", http.StatusNotFound)
         return
     }
