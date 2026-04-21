@@ -196,6 +196,17 @@ definitions:
       row:
         type: integer
     type: object
+  pfo-vector_internal_model.UserAchievementListResponse:
+    properties:
+      achievement_list_response:
+        items:
+          $ref: '#/definitions/pfo-vector_internal_model.AchievementResponse'
+        type: array
+      pagination:
+        $ref: '#/definitions/pfo-vector_internal_model.Pagination'
+      user_id:
+        type: integer
+    type: object
   pfo-vector_internal_model.UserListResponse:
     properties:
       pagination:
@@ -418,6 +429,8 @@ paths:
           description: Ошибка сервера
           schema:
             type: string
+      security:
+      - BearerAuth: []
       summary: Создание мероприятия
       tags:
       - events
@@ -451,9 +464,55 @@ paths:
           description: Ошибка получения списка мероприятий
           schema:
             type: string
+      security:
+      - BearerAuth: []
       summary: Получение всех мероприятий
       tags:
       - events
+  /profile/{user_id}/achievements:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает список достижений по ID
+      parameters:
+      - description: ID пользователя
+        in: path
+        name: user_id
+        required: true
+        type: integer
+      - default: 1
+        description: Номер страницы
+        in: query
+        minimum: 1
+        name: page
+        type: integer
+      - default: 20
+        description: Размер страницы
+        in: query
+        maximum: 100
+        minimum: 1
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Данные мероприятий пользователя с пагинацией
+          schema:
+            $ref: '#/definitions/pfo-vector_internal_model.UserAchievementListResponse'
+        "400":
+          description: Некорректный user_id
+          schema:
+            type: string
+        "500":
+          description: Ошибка получения списка достижений
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Получение всех достижений пользователя
+      tags:
+      - UserAchievement
   /profile/{user_id}/events:
     get:
       consumes:
@@ -493,6 +552,8 @@ paths:
           description: Ошибка получения списка мероприятий
           schema:
             type: string
+      security:
+      - BearerAuth: []
       summary: Получение всех мероприятий пользователя
       tags:
       - UserEvent
@@ -547,6 +608,8 @@ paths:
           description: Ошибка сервера
           schema:
             type: string
+      security:
+      - BearerAuth: []
       summary: Добавление мероприятия пользователю
       tags:
       - UserEvent

@@ -43,6 +43,7 @@ type CreateEventRequest struct {
 // @Success      201   {object}  model.EventResponse            "Мероприятие успешно создано"
 // @Failure      400   {string}  string                     "Неверный формат запроса или валидация не пройдена"
 // @Failure      500   {string}  string                     "Ошибка сервера"
+// @Security BearerAuth 
 // @Router       /events/add [post]
 func (h *EventHandler) CreateEvent(w http.ResponseWriter, r *http.Request) {
 
@@ -157,6 +158,7 @@ func (h *EventHandler) GetEvent(w http.ResponseWriter, r *http.Request) {
 // @Failure      404  {string}  string  "Ошибка получения списка мероприятий"
 // @Param page query int false "Номер страницы" default(1) minimum(1)
 // @Param limit query int false "Размер страницы" default(20) minimum(1) maximum(100)
+// @Security BearerAuth 
 // @Router       /events/all [get]
 func (h *EventHandler) ListEventsId(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()

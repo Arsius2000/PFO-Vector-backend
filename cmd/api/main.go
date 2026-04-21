@@ -81,6 +81,7 @@ func main() {
 		r.Post("/users/import-users",userHandler.ImportUsers)
 		r.Post("/profile/event/add",userEventHandler.AddUserEvent)
 		r.Post("/profile/achievement/add",userAchievementsHandler.AddUserAchievement)
+		r.Get("/profile/{user_id}/achievements",userAchievementsHandler.UserAchievementListId)
 
 		r.Get("/profile/{user_id}/events" ,userEventHandler.UserEventListId)
 		r.Patch("/users/{id}", userHandler.UpdateUser)

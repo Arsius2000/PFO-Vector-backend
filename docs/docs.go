@@ -211,6 +211,11 @@ const docTemplate = `{
         },
         "/events/add": {
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Создает новое мероприятие с переданными данными",
                 "consumes": [
                     "application/json"
@@ -257,6 +262,11 @@ const docTemplate = `{
         },
         "/events/all": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Возвращает данные мероприятий по ID",
                 "consumes": [
                     "application/json"
@@ -388,6 +398,11 @@ const docTemplate = `{
         },
         "/profile/event/add": {
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Добавляет мероприятие пользователю",
                 "consumes": [
                     "application/json"
@@ -426,8 +441,79 @@ const docTemplate = `{
                 }
             }
         },
+        "/profile/{user_id}/achievements": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Возвращает список достижений по ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "UserAchievement"
+                ],
+                "summary": "Получение всех достижений пользователя",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID пользователя",
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Номер страницы",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "maximum": 100,
+                        "minimum": 1,
+                        "type": "integer",
+                        "default": 20,
+                        "description": "Размер страницы",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Данные мероприятий пользователя с пагинацией",
+                        "schema": {
+                            "$ref": "#/definitions/pfo-vector_internal_model.UserAchievementListResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Некорректный user_id",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка получения списка достижений",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/profile/{user_id}/events": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Возвращает список мероприятий по ID",
                 "consumes": [
                     "application/json"
@@ -1214,6 +1300,23 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "row": {
+                    "type": "integer"
+                }
+            }
+        },
+        "pfo-vector_internal_model.UserAchievementListResponse": {
+            "type": "object",
+            "properties": {
+                "achievement_list_response": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/pfo-vector_internal_model.AchievementResponse"
+                    }
+                },
+                "pagination": {
+                    "$ref": "#/definitions/pfo-vector_internal_model.Pagination"
+                },
+                "user_id": {
                     "type": "integer"
                 }
             }

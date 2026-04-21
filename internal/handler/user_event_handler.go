@@ -34,6 +34,7 @@ type AddUserEventRequest struct{
 // @Param        user  body      handler.AddUserEventRequest  true  "Данные о пользователе и мероприятии"
 // @Success      201   {string}  string            "Записан на мероприятие"
 // @Failure      500   {string}  string                     "Ошибка сервера"
+// @Security BearerAuth 
 // @Router       /profile/event/add [post]
 func (h *UserEventHandler) AddUserEvent(w http.ResponseWriter,r *http.Request){
 	ctx:=r.Context()
@@ -72,6 +73,7 @@ func (h *UserEventHandler) AddUserEvent(w http.ResponseWriter,r *http.Request){
 // @Failure      500  {string}  string  "Ошибка получения списка мероприятий"
 // @Param page query int false "Номер страницы" default(1) minimum(1)
 // @Param limit query int false "Размер страницы" default(20) minimum(1) maximum(100)
+// @Security BearerAuth 
 // @Router       /profile/{user_id}/events [get]
 func (h *UserEventHandler) UserEventListId(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
