@@ -49,20 +49,26 @@ definitions:
       avatar_url:
         type: string
       direction_vector:
+        example: Экскурсовод
         type: string
       full_name:
+        example: Иван Иванов
         type: string
       gender:
+        example: Мужской
         type: string
       phone_number:
+        example: "89889993556"
         type: string
       rating:
         description: Если nil -> БД поставит 0
         type: integer
       study_group:
+        example: ЭФБО-05-25
         type: string
       telegram:
         description: Обязательно (NOT NULL в БД)
+        example: '@Ivan337'
         type: string
       visited_events_count:
         description: Если nil -> БД поставит 0

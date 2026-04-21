@@ -1079,27 +1079,33 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "direction_vector": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "Экскурсовод"
                 },
                 "full_name": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "Иван Иванов"
                 },
                 "gender": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "Мужской"
                 },
                 "phone_number": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "89889993556"
                 },
                 "rating": {
                     "description": "Если nil -\u003e БД поставит 0",
                     "type": "integer"
                 },
                 "study_group": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "ЭФБО-05-25"
                 },
                 "telegram": {
                     "description": "Обязательно (NOT NULL в БД)",
-                    "type": "string"
+                    "type": "string",
+                    "example": "@Ivan337"
                 },
                 "visited_events_count": {
                     "description": "Если nil -\u003e БД поставит 0",

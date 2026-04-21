@@ -46,14 +46,14 @@ func NewUserHandler(queries *repository.Queries,service *service.UserImportServi
 }
 
 type CreateUserRequest struct {
-	FullName           string  `json:"full_name"`
-	Gender             *string `json:"gender,omitempty"`
-	DirectionVector    *string `json:"direction_vector,omitempty"`
-	StudyGroup         *string `json:"study_group,omitempty"`
+	FullName           string  `json:"full_name" example:"Иван Иванов"` 
+	Gender             *string `json:"gender,omitempty" example:"Мужской"`
+	DirectionVector    *string `json:"direction_vector,omitempty" example:"Экскурсовод"`
+	StudyGroup         *string `json:"study_group,omitempty" example:"ЭФБО-05-25"`
 	Rating             *int32  `json:"rating,omitempty"`             // Если nil -> БД поставит 0
 	VisitedEventsCount *int32  `json:"visited_events_count,omitempty"` // Если nil -> БД поставит 0
-	PhoneNumber        *string `json:"phone_number,omitempty"`
-	Telegram           string  `json:"telegram"`                     // Обязательно (NOT NULL в БД)
+	PhoneNumber        *string `json:"phone_number,omitempty" example:"89889993556"`
+	Telegram           string  `json:"telegram" example:"@Ivan337"`                     // Обязательно (NOT NULL в БД)
 	AvatarURL          *string `json:"avatar_url,omitempty"`
        // UNIQUE в БД
 	// Role не нужен в запросе, если нас устраивает дефолт 'боец'. 
