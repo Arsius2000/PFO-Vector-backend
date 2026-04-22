@@ -109,115 +109,25 @@ func (q *Queries) GetUser(ctx context.Context, id int32) (User, error) {
 	return i, err
 }
 
-const listUsersId = `-- name: ListUsersId :many
+const listUsersSorted = `-- name: ListUsersSorted :many
 SELECT id, full_name, gender, direction_vector, study_group, rating, visited_events_count, phone_number, telegram, avatar_url, join_date, role, telegram_id
 FROM users
-ORDER BY id ASC 
-LIMIT $2
-OFFSET $1
+ORDER BY
+  CASE WHEN $1 = 'name' THEN full_name END ASC,
+  CASE WHEN $1 = 'role' THEN role END ASC,
+  CASE WHEN $1 = 'rating' THEN rating END DESC
+LIMIT $3
+OFFSET $2
 `
 
-type ListUsersIdParams struct {
-	Offset int32 `json:"offset"`
-	Limit  int32 `json:"limit"`
+type ListUsersSortedParams struct {
+	Sort   interface{} `json:"sort"`
+	Offset int32       `json:"offset"`
+	Limit  int32       `json:"limit"`
 }
 
-func (q *Queries) ListUsersId(ctx context.Context, arg ListUsersIdParams) ([]User, error) {
-	rows, err := q.db.Query(ctx, listUsersId, arg.Offset, arg.Limit)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	items := []User{}
-	for rows.Next() {
-		var i User
-		if err := rows.Scan(
-			&i.ID,
-			&i.FullName,
-			&i.Gender,
-			&i.DirectionVector,
-			&i.StudyGroup,
-			&i.Rating,
-			&i.VisitedEventsCount,
-			&i.PhoneNumber,
-			&i.Telegram,
-			&i.AvatarUrl,
-			&i.JoinDate,
-			&i.Role,
-			&i.TelegramID,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const listUsersName = `-- name: ListUsersName :many
-SELECT id, full_name, gender, direction_vector, study_group, rating, visited_events_count, phone_number, telegram, avatar_url, join_date, role, telegram_id
-FROM users
-ORDER BY full_name ASC 
-LIMIT $2
-OFFSET $1
-`
-
-type ListUsersNameParams struct {
-	Offset int32 `json:"offset"`
-	Limit  int32 `json:"limit"`
-}
-
-func (q *Queries) ListUsersName(ctx context.Context, arg ListUsersNameParams) ([]User, error) {
-	rows, err := q.db.Query(ctx, listUsersName, arg.Offset, arg.Limit)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	items := []User{}
-	for rows.Next() {
-		var i User
-		if err := rows.Scan(
-			&i.ID,
-			&i.FullName,
-			&i.Gender,
-			&i.DirectionVector,
-			&i.StudyGroup,
-			&i.Rating,
-			&i.VisitedEventsCount,
-			&i.PhoneNumber,
-			&i.Telegram,
-			&i.AvatarUrl,
-			&i.JoinDate,
-			&i.Role,
-			&i.TelegramID,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const listUsersRating = `-- name: ListUsersRating :many
-SELECT id, full_name, gender, direction_vector, study_group, rating, visited_events_count, phone_number, telegram, avatar_url, join_date, role, telegram_id
-FROM users
-ORDER BY rating ASC 
-LIMIT $2
-OFFSET $1
-`
-
-type ListUsersRatingParams struct {
-	Offset int32 `json:"offset"`
-	Limit  int32 `json:"limit"`
-}
-
-func (q *Queries) ListUsersRating(ctx context.Context, arg ListUsersRatingParams) ([]User, error) {
-	rows, err := q.db.Query(ctx, listUsersRating, arg.Offset, arg.Limit)
+func (q *Queries) ListUsersSorted(ctx context.Context, arg ListUsersSortedParams) ([]User, error) {
+	rows, err := q.db.Query(ctx, listUsersSorted, arg.Sort, arg.Offset, arg.Limit)
 	if err != nil {
 		return nil, err
 	}

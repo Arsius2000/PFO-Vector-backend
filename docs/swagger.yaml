@@ -789,76 +789,15 @@ paths:
       - application/json
       description: Возвращает данные пользователей по ID
       parameters:
-      - default: 1
-        description: Номер страницы
+      - default: name
+        description: Сортировка пользователей
+        enum:
+        - name
+        - role
+        - rating
         in: query
-        minimum: 1
-        name: page
-        type: integer
-      - default: 20
-        description: Размер страницы
-        in: query
-        maximum: 100
-        minimum: 1
-        name: limit
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Данные пользователей с пагинацией
-          schema:
-            $ref: '#/definitions/pfo-vector_internal_model.UserListResponse'
-        "404":
-          description: Ошибка получения списка пользователей
-          schema:
-            type: string
-      security:
-      - BearerAuth: []
-      summary: Получение всех пользователей
-      tags:
-      - users
-  /users/all/Name:
-    get:
-      consumes:
-      - application/json
-      description: Возвращает данные пользователей по Full_name
-      parameters:
-      - default: 1
-        description: Номер страницы
-        in: query
-        minimum: 1
-        name: page
-        type: integer
-      - default: 20
-        description: Размер страницы
-        in: query
-        maximum: 100
-        minimum: 1
-        name: limit
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Данные пользователей с пагинацией
-          schema:
-            $ref: '#/definitions/pfo-vector_internal_model.UserListResponse'
-        "404":
-          description: Ошибка получения списка пользователей
-          schema:
-            type: string
-      security:
-      - BearerAuth: []
-      summary: Получение всех пользователей
-      tags:
-      - users
-  /users/all/Rating:
-    get:
-      consumes:
-      - application/json
-      description: Возвращает данные пользователей по Rating
-      parameters:
+        name: sort
+        type: string
       - default: 1
         description: Номер страницы
         in: query

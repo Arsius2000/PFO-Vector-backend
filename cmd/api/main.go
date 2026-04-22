@@ -88,8 +88,7 @@ func main() {
 		r.Get("/users/{id}", userHandler.GetUser)
 		
 		r.Get("/users/all",userHandler.ListUsersId)
-		r.Get("/users/all/Name",userHandler.ListUsersName)
-		r.Get("/users/all/Rating",userHandler.ListUsersRating)
+
 		r.Get("/profile",userHandler.GetProfile)
 
 		r.Get("/events/{id}",eventHandler.GetEvent)

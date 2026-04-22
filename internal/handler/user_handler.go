@@ -3,7 +3,6 @@ package handler
 import (
 	"encoding/json"
 	"errors"
-	"log"
 
 	"net/http"
 	"strconv"
@@ -405,6 +404,7 @@ func (h *UserHandler) GetProfile(w http.ResponseWriter,r *http.Request){
 // @Produce      json
 // @Success      200  {object}  model.UserListResponse  "Данные пользователей с пагинацией" 
 // @Failure      404  {string}  string  "Ошибка получения списка пользователей"
+// @Param sort query string false "Сортировка пользователей" Enums(name,role,rating) default(name)
 // @Param page query int false "Номер страницы" default(1) minimum(1)
 // @Param limit query int false "Размер страницы" default(20) minimum(1) maximum(100)
 // @Security BearerAuth 
@@ -414,7 +414,9 @@ func (h *UserHandler) ListUsersId(w http.ResponseWriter, r *http.Request) {
 
 	// 1. Парсинг параметров пагинации из URL (?page=1&limit=20)
 	query := r.URL.Query()
-	
+	sort := r.URL.Query().Get("sort")
+
+
 
 	// Значения по умолчанию
 	page := 1
@@ -442,19 +444,19 @@ func (h *UserHandler) ListUsersId(w http.ResponseWriter, r *http.Request) {
 	// 2. Подготовка аргументов для sqlc
 	// sqlc сгенерирует типы int32 или int64 в зависимости от вашей БД. 
 	// Обычно для LIMIT/OFFSET подходит int32, но проверьте сгенерированный код.
-	args := repository.ListUsersIdParams{
+	args := repository.ListUsersSortedParams{
+		Sort: sort,
 		Limit:  int32(limit),
 		Offset: int32(offset),
 	}
 
 	// 3. Выполнение запроса
-	users, err := h.queries.ListUsersId(ctx, args)
+
+	users,err :=h.queries.ListUsersSorted(ctx,args)
 	if err != nil {
-		// Логирование ошибки
 		http.Error(w, "Ошибка получения списка пользователей", http.StatusInternalServerError)
 		return
 	}
-
 	response := model.UserListResponse{
     Users: model.MapUsersFromRepo(users),
     Pagination: model.Pagination{
@@ -470,157 +472,6 @@ func (h *UserHandler) ListUsersId(w http.ResponseWriter, r *http.Request) {
 }
 
 
-// GetListUsersName godoc
-// @Summary      Получение всех пользователей
-// @Description  Возвращает данные пользователей по Full_name
-// @Tags         users
-// @Accept       json
-// @Produce      json
-// @Success      200  {object}  model.UserListResponse  "Данные пользователей с пагинацией"
-// @Failure      404  {string}  string  "Ошибка получения списка пользователей"
-// @Param page query int false "Номер страницы" default(1) minimum(1)
-// @Param limit query int false "Размер страницы" default(20) minimum(1) maximum(100)
-// @Security BearerAuth 
-// @Router       /users/all/Name [get]
-func (h *UserHandler) ListUsersName(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
-	// 1. Парсинг параметров пагинации из URL (?page=1&limit=20)
-	query := r.URL.Query()
-	
-	pageStr := query.Get("page")
-	limitStr := query.Get("limit")
-
-	// Значения по умолчанию
-	page := 1
-	limit := 20 
-
-	if pageStr != "" {
-		if p, err := strconv.Atoi(pageStr); err == nil && p > 0 {
-			page = p
-		}
-	}
-
-	if limitStr != "" {
-		if l, err := strconv.Atoi(limitStr); err == nil && l > 0 {
-			// Ограничим максимальный размер страницы, чтобы не нагружать БД
-			if l > 100 {
-				limit = 100
-			} else {
-				limit = l
-			}
-		}
-	}
-
-	// Расчет OFFSET: (page - 1) * limit
-	offset := (page - 1) * limit
-
-	// 2. Подготовка аргументов для sqlc
-	// sqlc сгенерирует типы int32 или int64 в зависимости от вашей БД. 
-	// Обычно для LIMIT/OFFSET подходит int32, но проверьте сгенерированный код.
-	args := repository.ListUsersNameParams{
-		Limit:  int32(limit),
-		Offset: int32(offset),
-	}
-
-	// 3. Выполнение запроса
-	users, err := h.queries.ListUsersName(ctx, args)
-	if err != nil {
-		// Логирование ошибки
-		http.Error(w, "Ошибка получения списка пользователей", http.StatusInternalServerError)
-		return
-	}
-
-	response := model.UserListResponse{
-    Users: model.MapUsersFromRepo(users),
-    Pagination: model.Pagination{
-        Page:   page,
-        Limit:  limit,
-        Offset: offset,
-   	},
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(response)
-}
-
-
-// GetListUsersRating godoc
-// @Summary      Получение всех пользователей
-// @Description  Возвращает данные пользователей по Rating
-// @Tags         users
-// @Accept       json
-// @Produce      json
-// @Success      200  {object}  model.UserListResponse  "Данные пользователей с пагинацией"
-// @Failure      404  {string}  string  "Ошибка получения списка пользователей"
-// @Param page query int false "Номер страницы" default(1) minimum(1)
-// @Param limit query int false "Размер страницы" default(20) minimum(1) maximum(100)
-// @Security BearerAuth 
-// @Router       /users/all/Rating [get]
-func (h *UserHandler) ListUsersRating(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
-	// 1. Парсинг параметров пагинации из URL (?page=1&limit=20)
-	query := r.URL.Query()
-	
-	pageStr := query.Get("page")
-	limitStr := query.Get("limit")
-
-	// Значения по умолчанию
-	page := 1
-	limit := 20 
-
-	if pageStr != "" {
-		if p, err := strconv.Atoi(pageStr); err == nil && p > 0 {
-			page = p
-		}
-	}
-
-	if limitStr != "" {
-		if l, err := strconv.Atoi(limitStr); err == nil && l > 0 {
-			// Ограничим максимальный размер страницы, чтобы не нагружать БД
-			if l > 100 {
-				limit = 100
-			} else {
-				limit = l
-			}
-		}
-	}
-
-	// Расчет OFFSET: (page - 1) * limit
-	offset := (page - 1) * limit
-
-	// 2. Подготовка аргументов для sqlc
-	// sqlc сгенерирует типы int32 или int64 в зависимости от вашей БД. 
-	// Обычно для LIMIT/OFFSET подходит int32, но проверьте сгенерированный код.
-	args := repository.ListUsersRatingParams{
-		Limit:  int32(limit),
-		Offset: int32(offset),
-	}
-
-	// 3. Выполнение запроса
-	users, err := h.queries.ListUsersRating(ctx, args)
-	if err != nil {
-		// Логирование ошибки
-		http.Error(w, "Ошибка получения списка пользователей", http.StatusInternalServerError)
-		return
-	}
-
-
-	response := model.UserListResponse{
-    Users: model.MapUsersFromRepo(users),
-    Pagination: model.Pagination{
-        Page:   page,
-        Limit:  limit,
-        Offset: offset,
-   	},
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(response)
-}
 
 
 // DeleteUser godoc

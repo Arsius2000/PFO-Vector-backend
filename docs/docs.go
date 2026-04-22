@@ -684,111 +684,17 @@ const docTemplate = `{
                 "summary": "Получение всех пользователей",
                 "parameters": [
                     {
-                        "minimum": 1,
-                        "type": "integer",
-                        "default": 1,
-                        "description": "Номер страницы",
-                        "name": "page",
+                        "enum": [
+                            "name",
+                            "role",
+                            "rating"
+                        ],
+                        "type": "string",
+                        "default": "name",
+                        "description": "Сортировка пользователей",
+                        "name": "sort",
                         "in": "query"
                     },
-                    {
-                        "maximum": 100,
-                        "minimum": 1,
-                        "type": "integer",
-                        "default": 20,
-                        "description": "Размер страницы",
-                        "name": "limit",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Данные пользователей с пагинацией",
-                        "schema": {
-                            "$ref": "#/definitions/pfo-vector_internal_model.UserListResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "Ошибка получения списка пользователей",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
-        "/users/all/Name": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Возвращает данные пользователей по Full_name",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "users"
-                ],
-                "summary": "Получение всех пользователей",
-                "parameters": [
-                    {
-                        "minimum": 1,
-                        "type": "integer",
-                        "default": 1,
-                        "description": "Номер страницы",
-                        "name": "page",
-                        "in": "query"
-                    },
-                    {
-                        "maximum": 100,
-                        "minimum": 1,
-                        "type": "integer",
-                        "default": 20,
-                        "description": "Размер страницы",
-                        "name": "limit",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Данные пользователей с пагинацией",
-                        "schema": {
-                            "$ref": "#/definitions/pfo-vector_internal_model.UserListResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "Ошибка получения списка пользователей",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
-        "/users/all/Rating": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Возвращает данные пользователей по Rating",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "users"
-                ],
-                "summary": "Получение всех пользователей",
-                "parameters": [
                     {
                         "minimum": 1,
                         "type": "integer",

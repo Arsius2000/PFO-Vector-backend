@@ -17,24 +17,13 @@ RETURNING *;
 SELECT * FROM users
 WHERE id = $1;
 
--- name: ListUsersId :many
+-- name: ListUsersSorted :many
 SELECT *
 FROM users
-ORDER BY id ASC 
-LIMIT sqlc.arg('limit')
-OFFSET sqlc.arg('offset');
-
--- name: ListUsersName :many
-SELECT *
-FROM users
-ORDER BY full_name ASC 
-LIMIT sqlc.arg('limit')
-OFFSET sqlc.arg('offset');
-
--- name: ListUsersRating :many
-SELECT *
-FROM users
-ORDER BY rating ASC 
+ORDER BY
+  CASE WHEN sqlc.arg(sort) = 'name' THEN full_name END ASC,
+  CASE WHEN sqlc.arg(sort) = 'role' THEN role END ASC,
+  CASE WHEN sqlc.arg(sort) = 'rating' THEN rating END DESC
 LIMIT sqlc.arg('limit')
 OFFSET sqlc.arg('offset');
 
