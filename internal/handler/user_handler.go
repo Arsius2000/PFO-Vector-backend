@@ -481,7 +481,7 @@ func (h *UserHandler) ListUsersId(w http.ResponseWriter, r *http.Request) {
 // @Accept       json
 // @Produce      json
 // @Param        id   path      int  true  "ID пользователя"
-// @Success      200  {object}  model.UserResponse  "Пользователь удален"
+// @Success      200  {string}	string "Пользователь удален"
 // @Success      204  {string}  string "Пользователь удален"
 // @Failure      404  {string}  string  "Пользователь не найден"
 // @Security BearerAuth 
@@ -506,6 +506,7 @@ func (h *UserHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
         return
     }
     
-    w.WriteHeader(http.StatusNoContent)  // 204 — успешно, но без тела ответа
+    w.WriteHeader(http.StatusOK)  // 204 — успешно, но без тела ответа
+	w.Write([]byte("Пользователь удален"))
 }
 

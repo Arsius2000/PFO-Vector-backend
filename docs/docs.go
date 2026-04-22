@@ -874,7 +874,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Пользователь удален",
                         "schema": {
-                            "$ref": "#/definitions/pfo-vector_internal_model.UserResponse"
+                            "type": "string"
                         }
                     },
                     "204": {
