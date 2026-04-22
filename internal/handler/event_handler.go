@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 
 	"net/http"
+	"pfo-vector/internal/middleware"
 	"pfo-vector/internal/model"
 	"pfo-vector/internal/repository"
 	"strconv"
@@ -32,7 +33,6 @@ type CreateEventRequest struct {
 	Title     *string           `json:"title" example:"Бойцы гладят скатерти"`
 	Audience  *string           `json:"audience" example:"A-217"`
 	Weight    *int32            `json:"weight"`
-	CreatedBy int32             `json:"created_by" example:"7"`
 }
 
 // CreateEvent godoc
@@ -54,6 +54,12 @@ func (h *EventHandler) CreateEvent(w http.ResponseWriter, r *http.Request) {
 	var req CreateEventRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "Неверный формат JSON", http.StatusBadRequest)
+		return
+	}
+
+	userID, ok := r.Context().Value(middleware.CtxUserID).(int32)
+	if !ok {
+		http.Error(w, "invalid user id", http.StatusUnauthorized)
 		return
 	}
 
@@ -100,7 +106,7 @@ func (h *EventHandler) CreateEvent(w http.ResponseWriter, r *http.Request) {
 		Title:     nullText(req.Title),
 		Audience:  nullText(req.Audience),
 		Weight:    nullInt4(req.Weight),
-		CreatedBy: req.CreatedBy,
+		CreatedBy: userID,
 	}
 
 	event, err := h.queries.CreateEvent(ctx, args)

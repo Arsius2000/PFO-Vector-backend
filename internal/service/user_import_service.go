@@ -24,7 +24,7 @@ func (s *UserImportService) ImportFromExcel(ctx context.Context, file multipart.
 	
 	rows,rowsErrors,err := ParseExcel(file)
 	if err!=nil{
-		return model.ImportResult{},fmt.Errorf(err.Error())
+		return model.ImportResult{},err
 	}
 	
 
