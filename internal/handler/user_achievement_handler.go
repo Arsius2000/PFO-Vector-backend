@@ -70,6 +70,7 @@ func (h *UserAchievementHandler) AddUserAchievement(w http.ResponseWriter,r *htt
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
+	w.Write([]byte("Достижение присвоено"))
 }
 
 // UserAchievementListId godoc
