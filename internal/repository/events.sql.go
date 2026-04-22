@@ -133,6 +133,73 @@ func (q *Queries) GetEventsByUser(ctx context.Context, arg GetEventsByUserParams
 	return items, nil
 }
 
+const listEventsByFilter = `-- name: ListEventsByFilter :many
+SELECT id, event_date, start_time, end_time, title, audience, weight, created_by
+FROM events
+WHERE
+  $1::text = 'all'
+  OR (
+    $1::text = 'past'
+    AND (
+      event_date < CURRENT_DATE
+      OR (event_date = CURRENT_DATE AND COALESCE(end_time, TIME '23:59:59') < LOCALTIME)
+    )
+  )
+  OR (
+    $1::text = 'ongoing'
+    AND (
+      event_date = CURRENT_DATE
+      AND COALESCE(start_time, TIME '00:00:00') <= LOCALTIME
+      AND COALESCE(end_time, TIME '23:59:59') >= LOCALTIME
+    )
+  )
+  OR (
+    $1::text = 'upcoming'
+    AND (
+      event_date > CURRENT_DATE
+      OR (event_date = CURRENT_DATE AND COALESCE(start_time, TIME '00:00:00') > LOCALTIME)
+    )
+  )
+ORDER BY event_date ASC, start_time ASC
+LIMIT $3
+OFFSET $2
+`
+
+type ListEventsByFilterParams struct {
+	Filter string `json:"filter"`
+	Offset int32  `json:"offset"`
+	Limit  int32  `json:"limit"`
+}
+
+func (q *Queries) ListEventsByFilter(ctx context.Context, arg ListEventsByFilterParams) ([]Event, error) {
+	rows, err := q.db.Query(ctx, listEventsByFilter, arg.Filter, arg.Offset, arg.Limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Event{}
+	for rows.Next() {
+		var i Event
+		if err := rows.Scan(
+			&i.ID,
+			&i.EventDate,
+			&i.StartTime,
+			&i.EndTime,
+			&i.Title,
+			&i.Audience,
+			&i.Weight,
+			&i.CreatedBy,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listEventsDate = `-- name: ListEventsDate :many
 SELECT id, event_date, start_time, end_time, title, audience, weight, created_by
 FROM events

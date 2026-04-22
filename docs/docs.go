@@ -280,6 +280,19 @@ const docTemplate = `{
                 "summary": "Получение всех мероприятий",
                 "parameters": [
                     {
+                        "enum": [
+                            "all",
+                            "past",
+                            "ongoing",
+                            "upcoming"
+                        ],
+                        "type": "string",
+                        "default": "all",
+                        "description": "Фильтр статуса",
+                        "name": "filter",
+                        "in": "query"
+                    },
+                    {
                         "minimum": 1,
                         "type": "integer",
                         "default": 1,

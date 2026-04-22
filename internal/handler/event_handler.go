@@ -3,10 +3,12 @@ package handler
 import (
 	"database/sql"
 	"encoding/json"
+
 	"net/http"
 	"pfo-vector/internal/model"
 	"pfo-vector/internal/repository"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/go-chi/chi/v5"
@@ -161,6 +163,7 @@ func (h *EventHandler) GetEvent(w http.ResponseWriter, r *http.Request) {
 // @Produce      json
 // @Success      200  {object}  model.EventsListResponse  "Данные   с пагинацией"
 // @Failure      404  {string}  string  "Ошибка получения списка мероприятий"
+// @Param filter query string false "Фильтр статуса" Enums(all,past,ongoing,upcoming) default(all)
 // @Param page query int false "Номер страницы" default(1) minimum(1)
 // @Param limit query int false "Размер страницы" default(20) minimum(1) maximum(100)
 // @Security BearerAuth
@@ -170,6 +173,19 @@ func (h *EventHandler) ListEventsId(w http.ResponseWriter, r *http.Request) {
 
 	// 1. Парсинг параметров пагинации из URL (?page=1&limit=20)
 	query := r.URL.Query()
+	
+	filter := strings.ToLower(strings.TrimSpace(query.Get("filter")))
+	if filter == "" {
+		filter = "all"
+	}
+
+	switch filter {
+	case "all", "past", "ongoing", "upcoming":
+		// ok
+	default:
+		http.Error(w, "invalid filter value", http.StatusBadRequest)
+		return
+	}
 
 	// Значения по умолчанию
 	page := 1
@@ -197,13 +213,14 @@ func (h *EventHandler) ListEventsId(w http.ResponseWriter, r *http.Request) {
 	// 2. Подготовка аргументов для sqlc
 	// sqlc сгенерирует типы int32 или int64 в зависимости от вашей БД.
 	// Обычно для LIMIT/OFFSET подходит int32, но проверьте сгенерированный код.
-	args := repository.ListEventsIdParams{
+	args := repository.ListEventsByFilterParams{
+		Filter: filter,
 		Limit:  int32(limit),
 		Offset: int32(offset),
 	}
 
 	// 3. Выполнение запроса
-	events, err := h.queries.ListEventsId(ctx, args)
+	events, err := h.queries.ListEventsByFilter(ctx, args)
 	if err != nil {
 		// Логирование ошибки
 		http.Error(w, "Ошибка получения списка мероприятий", http.StatusInternalServerError)

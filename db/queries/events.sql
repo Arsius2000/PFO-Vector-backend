@@ -36,6 +36,37 @@ ORDER BY title ASC
 LIMIT sqlc.arg('limit')
 OFFSET sqlc.arg('offset');
 
+-- name: ListEventsByFilter :many
+SELECT *
+FROM events
+WHERE
+  sqlc.arg('filter')::text = 'all'
+  OR (
+    sqlc.arg('filter')::text = 'past'
+    AND (
+      event_date < CURRENT_DATE
+      OR (event_date = CURRENT_DATE AND COALESCE(end_time, TIME '23:59:59') < LOCALTIME)
+    )
+  )
+  OR (
+    sqlc.arg('filter')::text = 'ongoing'
+    AND (
+      event_date = CURRENT_DATE
+      AND COALESCE(start_time, TIME '00:00:00') <= LOCALTIME
+      AND COALESCE(end_time, TIME '23:59:59') >= LOCALTIME
+    )
+  )
+  OR (
+    sqlc.arg('filter')::text = 'upcoming'
+    AND (
+      event_date > CURRENT_DATE
+      OR (event_date = CURRENT_DATE AND COALESCE(start_time, TIME '00:00:00') > LOCALTIME)
+    )
+  )
+ORDER BY event_date ASC, start_time ASC
+LIMIT sqlc.arg('limit')
+OFFSET sqlc.arg('offset');
+
 -- name: UpdateEvent :one
 UPDATE events
 SET 

@@ -30,6 +30,7 @@ type Querier interface {
 	GetUserByTelegramUsername(ctx context.Context, telegram string) (User, error)
 	GetUserEventsByUserID(ctx context.Context, arg GetUserEventsByUserIDParams) ([]Event, error)
 	ListAchievementsId(ctx context.Context, arg ListAchievementsIdParams) ([]Achievement, error)
+	ListEventsByFilter(ctx context.Context, arg ListEventsByFilterParams) ([]Event, error)
 	ListEventsDate(ctx context.Context, arg ListEventsDateParams) ([]Event, error)
 	ListEventsId(ctx context.Context, arg ListEventsIdParams) ([]Event, error)
 	ListEventsTitle(ctx context.Context, arg ListEventsTitleParams) ([]Event, error)
