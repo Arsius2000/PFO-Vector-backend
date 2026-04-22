@@ -110,7 +110,15 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 		}
 		return pgtype.Int4{Int32: *i, Valid: true}
 	}
-
+	//Приводит номера телефонов к единому виду
+	if req.PhoneNumber != nil {
+    normalized, err := service.NormalizePhone(*req.PhoneNumber)
+    if err != nil {
+        http.Error(w, "Некорректный phone_number" + err.Error(), http.StatusBadRequest)
+        return
+    }
+    req.PhoneNumber = &normalized
+	}
 	// --- СБОРКА ПАРАМЕТРОВ ---
 
 	args := repository.CreateUserParams{

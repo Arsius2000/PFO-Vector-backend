@@ -200,7 +200,7 @@ func generateJWT(userID int32, telegramID int32,role string) (string, error) {
 		"user_id":     userID,
 		"telegram_id": telegramID,
 		"role":			role,
-		"exp":         time.Now().Add(24 * time.Hour).Unix(), // Токен живёт 24 часа
+		"exp":         time.Now().Add(240 * time.Hour).Unix(), // Токен живёт 24 часа
 		"issued_at":   time.Now().Unix(),
 	}
 
