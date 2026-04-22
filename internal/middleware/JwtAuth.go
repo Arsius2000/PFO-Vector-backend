@@ -1,11 +1,12 @@
 package middleware
 
 import (
-    "context"
-    "net/http"
-    "strings"
+	"context"
+	"errors"
+	"net/http"
+	"strings"
 
-    "github.com/golang-jwt/jwt/v5"
+	"github.com/golang-jwt/jwt/v5"
 )
 
 type ctxKey string
@@ -31,12 +32,22 @@ func JWTAuth(secret string) func(http.Handler) http.Handler {
             }
 
             token, err := jwt.Parse(tokenString, func(token *jwt.Token) (any, error) {
+                if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+                    return nil, errors.New("invalid signing method")
+                }
+                if token.Method.Alg() != jwt.SigningMethodHS256.Alg() {
+                    return nil, errors.New("unexpected signing method")
+                }
                 return []byte(secret), nil
             })
+
+
             if err != nil || !token.Valid {
                 http.Error(w, "invalid token", http.StatusUnauthorized)
                 return
             }
+
+
 
             claims, ok := token.Claims.(jwt.MapClaims)
             if !ok {

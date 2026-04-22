@@ -128,6 +128,7 @@ func (h *TelegramAuthHandler) TelegramAuth(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
+	
 	// 6. Формируем ответ
 	response := TelegramAuthResponse{
 		Token:   token,

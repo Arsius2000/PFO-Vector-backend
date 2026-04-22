@@ -32,9 +32,6 @@ definitions:
       audience:
         example: A-217
         type: string
-      created_by:
-        example: 7
-        type: integer
       end_time:
         example: "13:00"
         type: string

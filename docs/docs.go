@@ -1054,10 +1054,6 @@ const docTemplate = `{
                     "type": "string",
                     "example": "A-217"
                 },
-                "created_by": {
-                    "type": "integer",
-                    "example": 7
-                },
                 "end_time": {
                     "type": "string",
                     "example": "13:00"
