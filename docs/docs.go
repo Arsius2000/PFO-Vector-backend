@@ -328,6 +328,11 @@ const docTemplate = `{
         },
         "/events/{id}": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Возвращает данные мероприятия по ID",
                 "consumes": [
                     "application/json"

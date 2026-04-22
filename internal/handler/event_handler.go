@@ -126,6 +126,7 @@ func (h *EventHandler) CreateEvent(w http.ResponseWriter, r *http.Request) {
 // @Param        id   path      int  true  "ID мероприятия"
 // @Success      200  {object}  model.EventResponse  "Данные мероприятия"
 // @Failure      404  {string}  string  "Мероприятие не найдено"
+// @Security BearerAuth
 // @Router       /events/{id} [get]
 func (h *EventHandler) GetEvent(w http.ResponseWriter, r *http.Request) {
 

@@ -411,6 +411,8 @@ paths:
           description: Мероприятие не найдено
           schema:
             type: string
+      security:
+      - BearerAuth: []
       summary: Получение мероприятия
       tags:
       - events
