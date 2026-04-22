@@ -90,7 +90,12 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Поле telegram обязательно", http.StatusBadRequest)
 		return
 	}
-
+	err := service.ValidationTelegramUsername(req.Telegram)
+	if err!=nil{
+		http.Error(w,"Неккоректный telegram "+err.Error(),http.StatusBadRequest)
+		return
+	}
+	telegram := strings.TrimPrefix(req.Telegram, "@")
 
 	// --- ХЕЛПЕРЫ ДЛЯ PGTYPE ---
 
@@ -116,6 +121,8 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
         http.Error(w, "Некорректный phone_number" + err.Error(), http.StatusBadRequest)
         return
     }
+
+	
     req.PhoneNumber = &normalized
 	}
 	// --- СБОРКА ПАРАМЕТРОВ ---
@@ -128,7 +135,7 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 		Rating:             nullInt4(req.Rating),        // pgtype.Int4
 		VisitedEventsCount: nullInt4(req.VisitedEventsCount),
 		PhoneNumber:        nullText(req.PhoneNumber),
-		Telegram:           req.Telegram,                // string (NOT NULL в БД)
+		Telegram:           telegram,                // string (NOT NULL в БД)
 		AvatarUrl:          nullText(req.AvatarURL),     // <--- Исправленное имя поля!
 
 	}

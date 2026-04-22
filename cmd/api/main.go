@@ -98,7 +98,7 @@ func main() {
 		r.Post("/events/add",eventHandler.CreateEvent)
 
 		r.Post("/achievement/add",AchievementsHandler.CreateAchievement)
-				r.Get("/achievement/{id}",AchievementsHandler.GetAchievement)
+		r.Get("/achievement/{id}",AchievementsHandler.GetAchievement)
 		r.Get("/achievement/all",AchievementsHandler.ListAchievementsId)
 
 	})
