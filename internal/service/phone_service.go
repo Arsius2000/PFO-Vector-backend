@@ -34,8 +34,6 @@ func NormalizePhone(raw string) (string, error) {
 
     d := string(digits)
     switch len(d) {
-    case 10:
-        d = "8" + d
     case 11:
         if d[0] == '7' {
             d = "8" + d[1:]
