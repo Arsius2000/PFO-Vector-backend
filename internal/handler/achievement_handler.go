@@ -2,12 +2,15 @@ package handler
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 	"pfo-vector/internal/model"
 	"pfo-vector/internal/repository"
 	"strconv"
 	"strings"
 
+	"github.com/go-chi/chi/v5"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
@@ -172,4 +175,48 @@ func (h *AchievementHandler) ListAchievementsId(w http.ResponseWriter, r *http.R
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(response)
+}
+
+
+
+// GetAchievement godoc
+// @Summary      Получение достижения
+// @Description  Возвращает данные достижения по ID
+// @Tags         achievement
+// @Accept       json
+// @Produce      json
+// @Param        id   path      int  true  "ID достижения"
+// @Success      200  {object}  model.AchievementResponse  "Данные достижения"
+// @Failure      404  {string}  string  "Достижение не найдено"
+// @Security BearerAuth 
+// @Router       /achievement/{id} [get]
+func (h *AchievementHandler) GetAchievement(w http.ResponseWriter,r *http.Request){
+
+    idStr := chi.URLParam(r, "id")  // "1"
+
+	
+    
+    id, err := strconv.ParseInt(idStr, 10, 32)
+    if err != nil {
+        http.Error(w, "Invalid ID", http.StatusBadRequest)
+        return
+    }
+
+	achievement,err :=h.queries.GetAchievement(r.Context(),int32(id))
+	if errors.Is(err,pgx.ErrNoRows){
+		http.Error(w,"User not found",http.StatusNotFound)
+		return
+	}
+	if err != nil{
+		http.Error(w,"Database Error",http.StatusInternalServerError)
+		return
+	}
+
+
+	//конвертация в response модель
+	response := model.MapAchievementFromRepo(achievement)
+
+	w.Header().Set("Content-Type", "application/json")
+    json.NewEncoder(w).Encode(response)
+		
 }

@@ -88,7 +88,7 @@ func main() {
 		r.Get("/users/{id}", userHandler.GetUser)
 		
 		r.Get("/users/all",userHandler.ListUsersId)
-
+		
 		r.Get("/profile",userHandler.GetProfile)
 
 		r.Get("/events/{id}",eventHandler.GetEvent)
@@ -98,7 +98,9 @@ func main() {
 		r.Post("/events/add",eventHandler.CreateEvent)
 
 		r.Post("/achievement/add",AchievementsHandler.CreateAchievement)
+				r.Get("/achievement/{id}",AchievementsHandler.GetAchievement)
 		r.Get("/achievement/all",AchievementsHandler.ListAchievementsId)
+
 	})
 	// --- Подключение Swagger ---
 	// Маршрут для Swagger UI будет доступен по адресу http://localhost:8080/swagger/index.html

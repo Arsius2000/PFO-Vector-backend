@@ -2,6 +2,8 @@ package handler
 
 import (
 	"encoding/json"
+
+	
 	"net/http"
 	"pfo-vector/internal/middleware"
 	"pfo-vector/internal/model"
@@ -9,6 +11,7 @@ import (
 	"strconv"
 
 	"github.com/go-chi/chi/v5"
+
 )
 
 type UserAchievementHandler struct {
@@ -154,3 +157,5 @@ func (h *UserAchievementHandler) UserAchievementListId(w http.ResponseWriter, r 
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(response)
 }
+
+

@@ -262,6 +262,33 @@ info:
   title: My Project API
   version: "1.0"
 paths:
+  /achievement/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает данные достижения по ID
+      parameters:
+      - description: ID достижения
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Данные достижения
+          schema:
+            $ref: '#/definitions/pfo-vector_internal_model.AchievementResponse'
+        "404":
+          description: Достижение не найдено
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Получение достижения
+      tags:
+      - achievement
   /achievement/add:
     post:
       consumes:

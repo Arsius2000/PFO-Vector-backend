@@ -119,6 +119,49 @@ const docTemplate = `{
                 }
             }
         },
+        "/achievement/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Возвращает данные достижения по ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "achievement"
+                ],
+                "summary": "Получение достижения",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID достижения",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Данные достижения",
+                        "schema": {
+                            "$ref": "#/definitions/pfo-vector_internal_model.AchievementResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Достижение не найдено",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/auth/check/{telegram_username}": {
             "get": {
                 "description": "Проверяет, существует ли пользователь по telegram username",

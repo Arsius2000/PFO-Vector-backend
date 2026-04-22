@@ -9,6 +9,10 @@ INSERT INTO achievements(
 VALUES ($1, $2, $3, $4, $5)
 RETURNING *;
 
+-- name: GetAchievement :one
+SELECT * FROM achievements
+WHERE id = $1;
+
 -- name: ListAchievementsId :many
 SELECT *
 FROM achievements

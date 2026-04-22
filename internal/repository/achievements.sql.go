@@ -62,6 +62,26 @@ func (q *Queries) DeleteAchievements(ctx context.Context, id int32) error {
 	return err
 }
 
+const getAchievement = `-- name: GetAchievement :one
+SELECT id, achivements_name, icon_name, description, condition_type, condition_value, created_at FROM achievements
+WHERE id = $1
+`
+
+func (q *Queries) GetAchievement(ctx context.Context, id int32) (Achievement, error) {
+	row := q.db.QueryRow(ctx, getAchievement, id)
+	var i Achievement
+	err := row.Scan(
+		&i.ID,
+		&i.AchivementsName,
+		&i.IconName,
+		&i.Description,
+		&i.ConditionType,
+		&i.ConditionValue,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
 const listAchievementsId = `-- name: ListAchievementsId :many
 SELECT id, achivements_name, icon_name, description, condition_type, condition_value, created_at
 FROM achievements
