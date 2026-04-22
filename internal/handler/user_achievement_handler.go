@@ -31,7 +31,7 @@ type AddUserAchievementRequest struct{
 // AddUserAchievement godoc
 // @Summary      Добавление достижения пользователю
 // @Description  Добавляет достижения пользователю
-// @Tags         UserAchievement
+// @Tags         profile
 // @Accept       json
 // @Produce      json
 // @Param        user  body      handler.AddUserAchievementRequest  true  "Данные о пользователе и достижении"
@@ -75,7 +75,7 @@ func (h *UserAchievementHandler) AddUserAchievement(w http.ResponseWriter,r *htt
 // UserAchievementListId godoc
 // @Summary      Получение всех достижений пользователя
 // @Description  Возвращает список достижений по ID
-// @Tags         UserAchievement
+// @Tags         profile
 // @Accept       json
 // @Produce      json
 // @Param        user_id  path   int  true  "ID пользователя"

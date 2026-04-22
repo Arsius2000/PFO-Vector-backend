@@ -345,6 +345,40 @@
                 }
             }
         },
+        "/profile": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Возвращает данные пользователя из jwt",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "profile"
+                ],
+                "summary": "Получение пользователя",
+                "responses": {
+                    "200": {
+                        "description": "Данные пользователя",
+                        "schema": {
+                            "$ref": "#/definitions/pfo-vector_internal_model.UserResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Пользователь не найден",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/profile/achievement/add": {
             "post": {
                 "security": [
@@ -360,7 +394,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "UserAchievement"
+                    "profile"
                 ],
                 "summary": "Добавление достижения пользователю",
                 "parameters": [
@@ -405,7 +439,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "UserEvent"
+                    "profile"
                 ],
                 "summary": "Добавление мероприятия пользователю",
                 "parameters": [
@@ -450,7 +484,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "UserAchievement"
+                    "profile"
                 ],
                 "summary": "Получение всех достижений пользователя",
                 "parameters": [
@@ -516,7 +550,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "UserEvent"
+                    "profile"
                 ],
                 "summary": "Получение всех мероприятий пользователя",
                 "parameters": [

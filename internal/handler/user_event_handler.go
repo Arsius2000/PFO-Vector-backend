@@ -28,7 +28,7 @@ type AddUserEventRequest struct{
 // AddUserEvent godoc
 // @Summary      Добавление мероприятия пользователю
 // @Description  Добавляет мероприятие пользователю
-// @Tags         UserEvent
+// @Tags         profile
 // @Accept       json
 // @Produce      json
 // @Param        user  body      handler.AddUserEventRequest  true  "Данные о пользователе и мероприятии"
@@ -64,7 +64,7 @@ func (h *UserEventHandler) AddUserEvent(w http.ResponseWriter,r *http.Request){
 // UserEventListId godoc
 // @Summary      Получение всех мероприятий пользователя
 // @Description  Возвращает список мероприятий по ID
-// @Tags         UserEvent
+// @Tags         profile
 // @Accept       json
 // @Produce      json
 // @Param        user_id  path   int  true  "ID пользователя"

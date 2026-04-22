@@ -481,6 +481,27 @@ paths:
       summary: Получение всех мероприятий
       tags:
       - events
+  /profile:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает данные пользователя из jwt
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Данные пользователя
+          schema:
+            $ref: '#/definitions/pfo-vector_internal_model.UserResponse'
+        "404":
+          description: Пользователь не найден
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Получение пользователя
+      tags:
+      - profile
   /profile/{user_id}/achievements:
     get:
       consumes:
@@ -524,7 +545,7 @@ paths:
       - BearerAuth: []
       summary: Получение всех достижений пользователя
       tags:
-      - UserAchievement
+      - profile
   /profile/{user_id}/events:
     get:
       consumes:
@@ -568,7 +589,7 @@ paths:
       - BearerAuth: []
       summary: Получение всех мероприятий пользователя
       tags:
-      - UserEvent
+      - profile
   /profile/achievement/add:
     post:
       consumes:
@@ -596,7 +617,7 @@ paths:
       - BearerAuth: []
       summary: Добавление достижения пользователю
       tags:
-      - UserAchievement
+      - profile
   /profile/event/add:
     post:
       consumes:
@@ -624,7 +645,7 @@ paths:
       - BearerAuth: []
       summary: Добавление мероприятия пользователю
       tags:
-      - UserEvent
+      - profile
   /users/{id}:
     delete:
       consumes:

@@ -351,6 +351,40 @@ const docTemplate = `{
                 }
             }
         },
+        "/profile": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Возвращает данные пользователя из jwt",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "profile"
+                ],
+                "summary": "Получение пользователя",
+                "responses": {
+                    "200": {
+                        "description": "Данные пользователя",
+                        "schema": {
+                            "$ref": "#/definitions/pfo-vector_internal_model.UserResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Пользователь не найден",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/profile/achievement/add": {
             "post": {
                 "security": [
@@ -366,7 +400,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "UserAchievement"
+                    "profile"
                 ],
                 "summary": "Добавление достижения пользователю",
                 "parameters": [
@@ -411,7 +445,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "UserEvent"
+                    "profile"
                 ],
                 "summary": "Добавление мероприятия пользователю",
                 "parameters": [
@@ -456,7 +490,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "UserAchievement"
+                    "profile"
                 ],
                 "summary": "Получение всех достижений пользователя",
                 "parameters": [
@@ -522,7 +556,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "UserEvent"
+                    "profile"
                 ],
                 "summary": "Получение всех мероприятий пользователя",
                 "parameters": [

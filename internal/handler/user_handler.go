@@ -3,7 +3,7 @@ package handler
 import (
 	"encoding/json"
 	"errors"
-
+	"log"
 
 	"net/http"
 	"strconv"
@@ -333,6 +333,8 @@ func (h *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 func (h *UserHandler) GetUser(w http.ResponseWriter,r *http.Request){
 
     idStr := chi.URLParam(r, "id")  // "1"
+
+	
     
     id, err := strconv.ParseInt(idStr, 10, 32)
     if err != nil {
@@ -341,6 +343,42 @@ func (h *UserHandler) GetUser(w http.ResponseWriter,r *http.Request){
     }
 
 	user,err :=h.queries.GetUser(r.Context(),int32(id))
+	if errors.Is(err,pgx.ErrNoRows){
+		http.Error(w,"User not found",http.StatusNotFound)
+		return
+	}
+	if err != nil{
+		http.Error(w,"Database Error",http.StatusInternalServerError)
+		return
+	}
+
+
+	//конвертация в response модель
+	response := model.MapUserFromRepo(user)
+
+	w.Header().Set("Content-Type", "application/json")
+    json.NewEncoder(w).Encode(response)
+		
+}
+// GetProfile godoc
+// @Summary      Получение пользователя
+// @Description  Возвращает данные пользователя из jwt
+// @Tags         profile
+// @Accept       json
+// @Produce      json
+// @Success      200  {object}  model.UserResponse  "Данные пользователя"
+// @Failure      404  {string}  string  "Пользователь не найден"
+// @Security BearerAuth 
+// @Router       /profile [get]
+func (h *UserHandler) GetProfile(w http.ResponseWriter,r *http.Request){
+
+	userID, ok := r.Context().Value(middleware.CtxUserID).(int32)
+	if !ok {
+		http.Error(w, "invalid user id", http.StatusUnauthorized)
+		return
+	}
+	
+	user,err :=h.queries.GetUser(r.Context(),int32(userID))
 	if errors.Is(err,pgx.ErrNoRows){
 		http.Error(w,"User not found",http.StatusNotFound)
 		return
