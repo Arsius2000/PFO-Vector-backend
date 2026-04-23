@@ -12,6 +12,7 @@ import (
 	"pfo-vector/internal/service"
 
 	"github.com/go-chi/chi/v5"
+	chimiddleware "github.com/go-chi/chi/v5/middleware"
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
@@ -24,7 +25,6 @@ import (
 // @title           My Project API
 // @version         1.0
 // @description     API сервер для управления пользователями
-// @host            localhost:8080
 // @BasePath        /
 // @securityDefinitions.apikey BearerAuth
 // @in header
@@ -58,11 +58,16 @@ func main() {
 	userEventHandler := handler.NewUserEventHandler(queries)
 	AchievementsHandler := handler.NewAchievementsHandler(queries)
 	userAchievementsHandler := handler.NewUserAchievementHandler(queries)
+	telegramAuthHandler := handler.NewTelegramAuthHandler(queries)
     
     //РУЧКИ
-     r := chi.NewRouter()
+    r := chi.NewRouter()
+	r.Use(chimiddleware.RequestID)
+	r.Use(chimiddleware.RealIP)
+	r.Use(chimiddleware.Logger)    // <- выводит входящие запросы в терминал
+	r.Use(chimiddleware.Recoverer)
 		// --- Авторизация через Telegram ---
-	telegramAuthHandler := handler.NewTelegramAuthHandler(queries)
+
 	r.Post("/auth/telegram", telegramAuthHandler.TelegramAuth)
 	r.Post("/auth/check/{telegram_username}", telegramAuthHandler.CheckTelegramUsername)
 

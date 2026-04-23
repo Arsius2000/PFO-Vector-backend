@@ -252,7 +252,6 @@ definitions:
       visited_events_count:
         type: integer
     type: object
-host: localhost:8080
 info:
   contact: {}
   description: API сервер для управления пользователями

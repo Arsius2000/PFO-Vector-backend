@@ -15,8 +15,9 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgtype"
-	"github.com/lib/pq"
+
 )
 type UpdateUserRequest struct {
     FullName           *string `json:"full_name,omitempty"`
@@ -143,7 +144,7 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	// Выполнение запроса
 	user, err := h.queries.CreateUser(ctx, args)
 	if err != nil {
-		if pqErr, ok := err.(*pq.Error); ok && pqErr.Code == "23505" {
+		if pgErr, ok := err.(*pgconn.PgError); ok && pgErr.Code == "23505" {
 			http.Error(w, "Пользователь с таким telegram_id уже существует", http.StatusConflict)
 			return
 		}
@@ -214,7 +215,7 @@ func  (h *UserHandler) ImportUsers(w http.ResponseWriter, r *http.Request){
 				http.Error(w, err.Error(), http.StatusBadRequest) // тут останется имя колонки
 				return
 			default:
-				http.Error(w, "server error", http.StatusInternalServerError)
+				http.Error(w, "server error"+err.Error(), http.StatusInternalServerError)
 				return
 			}
 	}
@@ -309,7 +310,7 @@ func (h *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
             http.Error(w, "User not found", http.StatusNotFound)
             return
         }
-        if pqErr, ok := err.(*pq.Error); ok && pqErr.Code == "23505" {
+        if pgErr, ok := err.(*pgconn.PgError); ok && pgErr.Code == "23505" {
             http.Error(w, "Пользователь с таким telegram_id уже существует", http.StatusConflict)
             return
         }

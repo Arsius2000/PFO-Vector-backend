@@ -47,8 +47,6 @@ func JWTAuth(secret string) func(http.Handler) http.Handler {
                 return
             }
 
-
-
             claims, ok := token.Claims.(jwt.MapClaims)
             if !ok {
                 http.Error(w, "invalid token claims", http.StatusUnauthorized)
