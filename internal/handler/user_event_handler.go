@@ -6,6 +6,7 @@ import (
 	"pfo-vector/internal/model"
 	"pfo-vector/internal/repository"
 	"strconv"
+	"strings"
 
 	"github.com/go-chi/chi/v5"
 )
@@ -72,6 +73,7 @@ func (h *UserEventHandler) AddUserEvent(w http.ResponseWriter,r *http.Request){
 // @Success      200  {object}  model.EventsListResponse  "Данные мероприятий пользователя с пагинацией" 
 // @Failure      400  {string}  string  "Некорректный user_id"
 // @Failure      500  {string}  string  "Ошибка получения списка мероприятий"
+// @Param filter query string false "Фильтр статуса" Enums(all,past,ongoing,upcoming) default(all)
 // @Param page query int false "Номер страницы" default(1) minimum(1)
 // @Param limit query int false "Размер страницы" default(20) minimum(1) maximum(100)
 // @Security BearerAuth 
@@ -82,6 +84,18 @@ func (h *UserEventHandler) UserEventListId(w http.ResponseWriter, r *http.Reques
 	// 1. Парсинг параметров пагинации из URL (?page=1&limit=20)
 	query := r.URL.Query()
 	
+	filter := strings.ToLower(strings.TrimSpace(query.Get("filter")))
+	if filter == "" {
+		filter = "all"
+	}
+
+	switch filter {
+	case "all", "past", "ongoing", "upcoming":
+		// ok
+	default:
+		http.Error(w, "invalid filter value", http.StatusBadRequest)
+		return
+	}
 
 	// Значения по умолчанию
 	page := 1
@@ -118,6 +132,7 @@ func (h *UserEventHandler) UserEventListId(w http.ResponseWriter, r *http.Reques
 	// Обычно для LIMIT/OFFSET подходит int32, но проверьте сгенерированный код.
 	args := repository.GetUserEventsByUserIDParams{
 		UserID: int32(userID),
+		Filter: filter,
 		Limit:  int32(limit),
 		Offset: int32(offset),
 	}

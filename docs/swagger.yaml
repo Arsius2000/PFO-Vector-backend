@@ -592,6 +592,16 @@ paths:
         name: user_id
         required: true
         type: integer
+      - default: all
+        description: Фильтр статуса
+        enum:
+        - all
+        - past
+        - ongoing
+        - upcoming
+        in: query
+        name: filter
+        type: string
       - default: 1
         description: Номер страницы
         in: query

@@ -33,19 +33,50 @@ SELECT e.id, e.event_date, e.start_time, e.end_time, e.title, e.audience, e.weig
 FROM events e
 JOIN user_events ue ON ue.event_id = e.id
 WHERE ue.user_id = $1
-ORDER BY e.event_date DESC
-LIMIT $3
-OFFSET $2
+  AND (
+    $2::text = 'all'
+    OR (
+      $2::text = 'past'
+      AND (
+        e.event_date < CURRENT_DATE
+        OR (e.event_date = CURRENT_DATE AND COALESCE(e.end_time, TIME '23:59:59') < LOCALTIME)
+      )
+    )
+    OR (
+      $2::text = 'ongoing'
+      AND (
+        e.event_date = CURRENT_DATE
+        AND COALESCE(e.start_time, TIME '00:00:00') <= LOCALTIME
+        AND COALESCE(e.end_time, TIME '23:59:59') >= LOCALTIME
+      )
+    )
+    OR (
+      $2::text = 'upcoming'
+      AND (
+        e.event_date > CURRENT_DATE
+        OR (e.event_date = CURRENT_DATE AND COALESCE(e.start_time, TIME '00:00:00') > LOCALTIME)
+      )
+    )
+  )
+ORDER BY e.event_date ASC, e.start_time ASC
+LIMIT $4
+OFFSET $3
 `
 
 type GetUserEventsByUserIDParams struct {
-	UserID int32 `json:"user_id"`
-	Offset int32 `json:"offset"`
-	Limit  int32 `json:"limit"`
+	UserID int32  `json:"user_id"`
+	Filter string `json:"filter"`
+	Offset int32  `json:"offset"`
+	Limit  int32  `json:"limit"`
 }
 
 func (q *Queries) GetUserEventsByUserID(ctx context.Context, arg GetUserEventsByUserIDParams) ([]Event, error) {
-	rows, err := q.db.Query(ctx, getUserEventsByUserID, arg.UserID, arg.Offset, arg.Limit)
+	rows, err := q.db.Query(ctx, getUserEventsByUserID,
+		arg.UserID,
+		arg.Filter,
+		arg.Offset,
+		arg.Limit,
+	)
 	if err != nil {
 		return nil, err
 	}
