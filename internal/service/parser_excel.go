@@ -26,6 +26,7 @@ type UserRow struct {
     FullName    string `json:"full_name"`
     Telegram    string `json:"telegram"`
     PhoneNumber string `json:"phone_number,omitempty"`
+	Gender      string `json:"gender,omitempty"`
 }
 
 func ParseExcel(file multipart.File)([]UserRow,[]model.RowError,error){
@@ -67,6 +68,7 @@ func ParseExcel(file multipart.File)([]UserRow,[]model.RowError,error){
 		fullname := cell(row,headerIndex,"фио")
 		telegram := cell(row,headerIndex,"тг")
 		phonenumber := cell(row,headerIndex,"телефон")
+		gender :=cell(row,headerIndex,"пол")
 
 		isValid := true
 		if strings.TrimSpace(fullname) == ""  {
@@ -99,6 +101,7 @@ func ParseExcel(file multipart.File)([]UserRow,[]model.RowError,error){
 				FullName: fullname,
 				Telegram: telegram,
 				PhoneNumber: phonenumber,
+				Gender:gender,
 			})
 		}
 
