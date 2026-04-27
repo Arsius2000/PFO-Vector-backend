@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 
 	"pfo-vector/internal/handler"
 	"pfo-vector/internal/middleware"
@@ -18,6 +19,7 @@ import (
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/joho/godotenv"
+	"github.com/redis/go-redis/v9"
 
 	httpSwagger "github.com/swaggo/http-swagger/v2"
 )
@@ -37,12 +39,39 @@ func main() {
     }
 	ctx := context.Background()
     dbURL := os.Getenv("DATABASE_URL")
+	redisAddr := os.Getenv("REDIS_ADDR")
+	redisPassword :=os.Getenv("REDIS_PASSWORD")
+	redisDb := os.Getenv("REDIS_DB")
+
+
+	dbInt, err := strconv.Atoi(redisDb)
+	if err != nil{
+		log.Fatal("Number redis base not correct"+err.Error())
+	}
+
+	rdb :=redis.NewClient(&redis.Options{
+		Addr: redisAddr,
+		Password: redisPassword,
+		DB: dbInt,
+	})
+
+	defer rdb.Close()
+
+		// Пинг сервера
+	pong, err := rdb.Ping(ctx).Result()
+	if err != nil {
+		log.Println("Ошибка подключения:", err)
+		
+	}
+	log.Println("Ответ от Redis:", pong) // Выведет "PONG"
     
     // Применяем миграции перед запуском
     if err := runMigrations(dbURL); err != nil {
         log.Fatalf("Migration failed: %v", err)
     }
     
+
+
 
     // Запускаем сервер
 	pool, err := pgxpool.New(ctx, dbURL)

@@ -45,10 +45,11 @@ type Notification struct {
 	EventID          pgtype.Int4        `json:"event_id"`
 	NotificationType string             `json:"notification_type"`
 	MessageText      string             `json:"message_text"`
-	Status           pgtype.Text        `json:"status"`
-	RetryCount       pgtype.Int4        `json:"retry_count"`
+	Status           string             `json:"status"`
+	RetryCount       int32              `json:"retry_count"`
 	LastError        pgtype.Text        `json:"last_error"`
 	CreatedAt        pgtype.Timestamptz `json:"created_at"`
+	QueuedAt         pgtype.Timestamptz `json:"queued_at"`
 	SentAt           pgtype.Timestamptz `json:"sent_at"`
 }
 

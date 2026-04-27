@@ -16,6 +16,7 @@ type Querier interface {
 	CreateAchievements(ctx context.Context, arg CreateAchievementsParams) (Achievement, error)
 	CreateEvent(ctx context.Context, arg CreateEventParams) (Event, error)
 	CreateNews(ctx context.Context, arg CreateNewsParams) (News, error)
+	CreateNotification(ctx context.Context, arg CreateNotificationParams) (Notification, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
 	DeleteAchievements(ctx context.Context, id int32) error
 	DeleteEvent(ctx context.Context, id int32) error
@@ -25,6 +26,7 @@ type Querier interface {
 	GetEvent(ctx context.Context, id int32) (Event, error)
 	GetEventsByUser(ctx context.Context, arg GetEventsByUserParams) ([]Event, error)
 	GetNews(ctx context.Context, id int32) (News, error)
+	GetPendingNotificationsBatch(ctx context.Context, limit int32) ([]Notification, error)
 	GetUser(ctx context.Context, id int32) (User, error)
 	GetUserAchievementsByUserID(ctx context.Context, arg GetUserAchievementsByUserIDParams) ([]Achievement, error)
 	GetUserByTelegramID(ctx context.Context, telegramID pgtype.Int4) (User, error)
@@ -37,6 +39,10 @@ type Querier interface {
 	ListEventsTitle(ctx context.Context, arg ListEventsTitleParams) ([]Event, error)
 	ListNews(ctx context.Context) ([]News, error)
 	ListUsersSorted(ctx context.Context, arg ListUsersSortedParams) ([]User, error)
+	MarkNotificationFailed(ctx context.Context, arg MarkNotificationFailedParams) (Notification, error)
+	MarkNotificationQueued(ctx context.Context, id int32) (Notification, error)
+	MarkNotificationSent(ctx context.Context, id int32) (Notification, error)
+	RetryFailedNotification(ctx context.Context, id int32) (Notification, error)
 	UpdateEvent(ctx context.Context, arg UpdateEventParams) (Event, error)
 	UpdateNews(ctx context.Context, arg UpdateNewsParams) (News, error)
 	UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error)
