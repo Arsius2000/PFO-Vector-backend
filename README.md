@@ -1,7 +1,7 @@
 # 01-REP-vector-03-25
 С начало запускаем контейнер потом код !!!
 
-Запуск контейнера с бд docker-compose up -d db
+Запуск контейнера с бд docker-compose up -d db redis
 
 Запустить код  go run ./cmd/api/main.go
 
