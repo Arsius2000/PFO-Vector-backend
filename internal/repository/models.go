@@ -19,14 +19,16 @@ type Achievement struct {
 }
 
 type Event struct {
-	ID        int32       `json:"id"`
-	EventDate pgtype.Date `json:"event_date"`
-	StartTime pgtype.Time `json:"start_time"`
-	EndTime   pgtype.Time `json:"end_time"`
-	Title     pgtype.Text `json:"title"`
-	Audience  pgtype.Text `json:"audience"`
-	Weight    pgtype.Int4 `json:"weight"`
-	CreatedBy int32       `json:"created_by"`
+	ID                  int32       `json:"id"`
+	EventDate           pgtype.Date `json:"event_date"`
+	StartTime           pgtype.Time `json:"start_time"`
+	EndTime             pgtype.Time `json:"end_time"`
+	Title               pgtype.Text `json:"title"`
+	Audience            pgtype.Text `json:"audience"`
+	Weight              pgtype.Int4 `json:"weight"`
+	ParticipantsLimit   pgtype.Int4 `json:"participants_limit"`
+	ParticipantsCurrent pgtype.Int4 `json:"participants_current"`
+	CreatedBy           int32       `json:"created_by"`
 }
 
 type News struct {

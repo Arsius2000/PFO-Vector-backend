@@ -7,7 +7,8 @@ CREATE TABLE IF NOT EXISTS events(
     title TEXT,
     audience VARCHAR(150),
     weight INT,
-    
+    participants_limit INT,
+    participants_current INT DEFAULT 0,
     created_by INT NOT NULL,
     --Связываем таблицу users и events
     CONSTRAINT fk_events_user_id   

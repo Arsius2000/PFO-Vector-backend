@@ -11,8 +11,6 @@ definitions:
     properties:
       event_id:
         type: integer
-      user_id:
-        type: integer
     type: object
   internal_handler.CreateAchievementRequest:
     properties:
@@ -38,6 +36,8 @@ definitions:
       event_date:
         example: 21.02.2007
         type: string
+      participants_limit:
+        type: integer
       start_time:
         example: "12:00"
         type: string
@@ -157,6 +157,10 @@ definitions:
       event_date:
         type: string
       id:
+        type: integer
+      participants_current:
+        type: integer
+      participants_limit:
         type: integer
       start_time:
         type: string
@@ -680,6 +684,10 @@ paths:
       responses:
         "201":
           description: Записан на мероприятие
+          schema:
+            type: string
+        "409":
+          description: конфликт записей
           schema:
             type: string
         "500":

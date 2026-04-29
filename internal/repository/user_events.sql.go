@@ -9,27 +9,8 @@ import (
 	"context"
 )
 
-const addUserEvent = `-- name: AddUserEvent :exec
-INSERT INTO user_events (
-    user_id,
-    event_id
-)
-VALUES ($1, $2)
-ON CONFLICT (user_id, event_id) DO NOTHING
-`
-
-type AddUserEventParams struct {
-	UserID  int32 `json:"user_id"`
-	EventID int32 `json:"event_id"`
-}
-
-func (q *Queries) AddUserEvent(ctx context.Context, arg AddUserEventParams) error {
-	_, err := q.db.Exec(ctx, addUserEvent, arg.UserID, arg.EventID)
-	return err
-}
-
 const getUserEventsByUserID = `-- name: GetUserEventsByUserID :many
-SELECT e.id, e.event_date, e.start_time, e.end_time, e.title, e.audience, e.weight, e.created_by
+SELECT e.id, e.event_date, e.start_time, e.end_time, e.title, e.audience, e.weight, e.participants_limit, e.participants_current, e.created_by
 FROM events e
 JOIN user_events ue ON ue.event_id = e.id
 WHERE ue.user_id = $1
@@ -92,6 +73,8 @@ func (q *Queries) GetUserEventsByUserID(ctx context.Context, arg GetUserEventsBy
 			&i.Title,
 			&i.Audience,
 			&i.Weight,
+			&i.ParticipantsLimit,
+			&i.ParticipantsCurrent,
 			&i.CreatedBy,
 		); err != nil {
 			return nil, err
@@ -102,4 +85,65 @@ func (q *Queries) GetUserEventsByUserID(ctx context.Context, arg GetUserEventsBy
 		return nil, err
 	}
 	return items, nil
+}
+
+const registerUserWithStatus = `-- name: RegisterUserWithStatus :one
+WITH ev AS (
+  SELECT id, event_date, participants_current, participants_limit, end_time
+  FROM events
+  WHERE  events.id = $1
+  FOR UPDATE
+),
+attempt_insert AS (
+  INSERT INTO user_events (user_id, event_id)
+  SELECT $2, $1
+  FROM ev
+  WHERE (
+      ev.event_date > CURRENT_DATE
+      OR (
+        ev.event_date = CURRENT_DATE
+        AND COALESCE(ev.end_time, TIME '23:59:59') > LOCALTIME
+      )
+    )
+    AND ev.participants_current < ev.participants_limit
+  ON CONFLICT (user_id, event_id) DO NOTHING
+  RETURNING event_id
+),
+attempt_update AS (
+  UPDATE events
+  SET participants_current = participants_current + 1
+  WHERE id = (SELECT event_id FROM attempt_insert)
+  RETURNING id
+)
+SELECT 
+  CASE 
+    WHEN NOT EXISTS (SELECT 1 FROM ev) THEN 'NOT_FOUND'
+    WHEN EXISTS (SELECT 1 FROM attempt_update) THEN 'SUCCESS'
+    WHEN NOT EXISTS (
+      SELECT 1
+      FROM ev
+      WHERE (
+        ev.event_date > CURRENT_DATE
+        OR (
+          ev.event_date = CURRENT_DATE
+          AND COALESCE(ev.end_time, TIME '23:59:59') > LOCALTIME
+        )
+      )
+    ) THEN 'REGISTRATION_CLOSED'
+    WHEN NOT EXISTS (SELECT 1 FROM ev WHERE participants_current < participants_limit) THEN 'NO_VACANCY'
+    WHEN NOT EXISTS (SELECT 1 FROM attempt_insert) THEN 'ALREADY_REGISTERED'
+    ELSE 'UNKNOWN_ERROR'
+  END AS status
+`
+
+type RegisterUserWithStatusParams struct {
+	EventID int32 `json:"event_id"`
+	UserID  int32 `json:"user_id"`
+}
+
+func (q *Queries) RegisterUserWithStatus(ctx context.Context, arg RegisterUserWithStatusParams) (string, error) {
+	row := q.db.QueryRow(ctx, registerUserWithStatus, arg.EventID, arg.UserID)
+	var status string
+	err := row.Scan(&status)
+	return status, err
 }

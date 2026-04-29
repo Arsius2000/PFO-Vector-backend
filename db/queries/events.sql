@@ -6,9 +6,11 @@ INSERT INTO events (
     title,
     audience,
     weight,
+    participants_limit ,
+    participants_current ,
     created_by
 )
-VALUES ($1, $2, $3, $4, $5, $6, $7)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
 RETURNING *;
 
 -- name: GetEvent :one

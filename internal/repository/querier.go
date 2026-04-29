@@ -12,7 +12,6 @@ import (
 
 type Querier interface {
 	AddUserAchievements(ctx context.Context, arg AddUserAchievementsParams) error
-	AddUserEvent(ctx context.Context, arg AddUserEventParams) error
 	CreateAchievements(ctx context.Context, arg CreateAchievementsParams) (Achievement, error)
 	CreateEvent(ctx context.Context, arg CreateEventParams) (Event, error)
 	CreateNews(ctx context.Context, arg CreateNewsParams) (News, error)
@@ -42,6 +41,7 @@ type Querier interface {
 	MarkNotificationFailed(ctx context.Context, arg MarkNotificationFailedParams) (Notification, error)
 	MarkNotificationQueued(ctx context.Context, id int32) (Notification, error)
 	MarkNotificationSent(ctx context.Context, id int32) (Notification, error)
+	RegisterUserWithStatus(ctx context.Context, arg RegisterUserWithStatusParams) (string, error)
 	RetryFailedNotification(ctx context.Context, id int32) (Notification, error)
 	UpdateEvent(ctx context.Context, arg UpdateEventParams) (Event, error)
 	UpdateNews(ctx context.Context, arg UpdateNewsParams) (News, error)

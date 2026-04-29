@@ -51,16 +51,26 @@ func MapEventFromRepo(e repository.Event) EventResponse {
 	if e.Weight.Valid {
 		weight = e.Weight.Int32
 	}
+	participantsLimit := int32(0)
+	if e.ParticipantsLimit.Valid {
+		participantsLimit = e.ParticipantsLimit.Int32
+	}
+	participantsCurrent := int32(0)
+	if e.ParticipantsCurrent.Valid {
+		participantsCurrent = e.ParticipantsCurrent.Int32
+	}
 
 	return EventResponse{
-		ID:        e.ID,
-		EventDate: eventDate,
-		StartTime: startTime,
-		EndTime:   endTime,
-		Title:     title,
-		Audience:  audience,
-		Weight:    weight,
-		CreatedBy: e.CreatedBy,
+		ID:                  e.ID,
+		EventDate:           eventDate,
+		StartTime:           startTime,
+		EndTime:             endTime,
+		Title:               title,
+		Audience:            audience,
+		Weight:              weight,
+		ParticipantsLimit:   participantsLimit,
+		ParticipantsCurrent: participantsCurrent,
+		CreatedBy:           e.CreatedBy,
 	}
 }
 

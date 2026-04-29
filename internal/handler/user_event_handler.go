@@ -2,9 +2,12 @@ package handler
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
+	"pfo-vector/internal/middleware"
 	"pfo-vector/internal/model"
 	"pfo-vector/internal/repository"
+	"pfo-vector/internal/service"
 	"strconv"
 	"strings"
 
@@ -13,16 +16,17 @@ import (
 
 type UserEventHandler struct {
 	queries *repository.Queries
+	service *service.UserEventService
 }
 
-func NewUserEventHandler(queries *repository.Queries) *UserEventHandler{
+func NewUserEventHandler(queries *repository.Queries,service *service.UserEventService) *UserEventHandler{
 	return &UserEventHandler{
 		queries: queries,
+		service: service,
 	}
 }
 
 type AddUserEventRequest struct{
-	UserId int `json:"user_id"`
     EventId int `json:"event_id"`
 }
 
@@ -34,11 +38,14 @@ type AddUserEventRequest struct{
 // @Produce      json
 // @Param        user  body      handler.AddUserEventRequest  true  "Данные о пользователе и мероприятии"
 // @Success      201   {string}  string            "Записан на мероприятие"
+// @Failure      409   {string}  string            "конфликт записей"
 // @Failure      500   {string}  string                     "Ошибка сервера"
 // @Security BearerAuth 
 // @Router       /profile/event/add [post]
 func (h *UserEventHandler) AddUserEvent(w http.ResponseWriter,r *http.Request){
 	ctx:=r.Context()
+
+	userID := ctx.Value(middleware.CtxUserID).(int32)
 
 	var req AddUserEventRequest
 
@@ -46,17 +53,27 @@ func (h *UserEventHandler) AddUserEvent(w http.ResponseWriter,r *http.Request){
 		http.Error(w, "Неверный формат JSON", http.StatusBadRequest)
 		return
 	}
-
-	args := repository.AddUserEventParams{
-		UserID: int32(req.UserId),
-		EventID: int32(req.EventId),
-	}
-
-	err := h.queries.AddUserEvent(ctx,args)
+	err := h.service.RegisterUserToEvent(ctx,userID,int32(req.EventId))
 	if err!=nil{
-				http.Error(w, "Ошибка сервера: "+err.Error(), http.StatusInternalServerError)
-		return
+		switch {
+		case errors.Is(err,service.ErrEventFull):
+			http.Error(w,"Event full",http.StatusConflict)
+			return
+		case errors.Is(err,service.ErrAlreadyRegistered):
+			http.Error(w,"Already Registered",http.StatusConflict)
+			return
+		case errors.Is(err,service.ErrRegistrationClosed):
+			http.Error(w,"Registration closed",http.StatusConflict)
+			return
+		case errors.Is(err,service.ErrNotFound):
+			http.Error(w,"Event not found",http.StatusBadRequest)
+			return
+		default:
+			http.Error(w,"Unknown error"+err.Error(),http.StatusInternalServerError)
+			return
 	}
+	}
+	
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 	w.Write([]byte("Мероприятие добавлено"))
@@ -81,6 +98,7 @@ func (h *UserEventHandler) AddUserEvent(w http.ResponseWriter,r *http.Request){
 func (h *UserEventHandler) UserEventListId(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
+	
 	// 1. Парсинг параметров пагинации из URL (?page=1&limit=20)
 	query := r.URL.Query()
 	

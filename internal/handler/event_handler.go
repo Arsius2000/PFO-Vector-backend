@@ -33,6 +33,8 @@ type CreateEventRequest struct {
 	Title     *string           `json:"title" example:"Бойцы гладят скатерти"`
 	Audience  *string           `json:"audience" example:"A-217"`
 	Weight    *int32            `json:"weight"`
+	ParticipantsLimit int32	`json:"participants_limit"`
+
 }
 
 // CreateEvent godoc
@@ -99,6 +101,8 @@ func (h *EventHandler) CreateEvent(w http.ResponseWriter, r *http.Request) {
 		return pgtype.Time{Microseconds: microseconds, Valid: true}
 	}
 
+	zero:=int32(0)
+
 	args := repository.CreateEventParams{
 		EventDate: nullDate(req.EventDate),
 		StartTime: nullTime(req.StartTime),
@@ -106,6 +110,8 @@ func (h *EventHandler) CreateEvent(w http.ResponseWriter, r *http.Request) {
 		Title:     nullText(req.Title),
 		Audience:  nullText(req.Audience),
 		Weight:    nullInt4(req.Weight),
+		ParticipantsLimit: nullInt4(&req.ParticipantsLimit),
+		ParticipantsCurrent: nullInt4(&zero),
 		CreatedBy: userID,
 	}
 

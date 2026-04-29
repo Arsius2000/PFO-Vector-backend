@@ -527,6 +527,12 @@ const docTemplate = `{
                             "type": "string"
                         }
                     },
+                    "409": {
+                        "description": "конфликт записей",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
                     "500": {
                         "description": "Ошибка сервера",
                         "schema": {
@@ -1034,9 +1040,6 @@ const docTemplate = `{
             "properties": {
                 "event_id": {
                     "type": "integer"
-                },
-                "user_id": {
-                    "type": "integer"
                 }
             }
         },
@@ -1074,6 +1077,9 @@ const docTemplate = `{
                 "event_date": {
                     "type": "string",
                     "example": "21.02.2007"
+                },
+                "participants_limit": {
+                    "type": "integer"
                 },
                 "start_time": {
                     "type": "string",
@@ -1251,6 +1257,12 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "id": {
+                    "type": "integer"
+                },
+                "participants_current": {
+                    "type": "integer"
+                },
+                "participants_limit": {
                     "type": "integer"
                 },
                 "start_time": {

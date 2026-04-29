@@ -8,6 +8,8 @@ type EventResponse struct {
 	Title     string `json:"title"`
 	Audience  string `json:"audience"`
 	Weight    int32  `json:"weight"`
+	ParticipantsLimit int32	`json:"participants_limit"`
+	ParticipantsCurrent int32	`json:"participants_current"`
 	CreatedBy int32  `json:"created_by"`
 }
 

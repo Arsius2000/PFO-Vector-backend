@@ -81,10 +81,10 @@ func main() {
 	defer pool.Close()
 
 	queries := db.New(pool)
-	service:=service.NewUserImportService(queries)
-    userHandler := handler.NewUserHandler(queries,service)
+	
+    userHandler := handler.NewUserHandler(queries,service.NewUserImportService(queries))
 	eventHandler := handler.NewEventHandler(queries)
-	userEventHandler := handler.NewUserEventHandler(queries)
+	userEventHandler := handler.NewUserEventHandler(queries,service.NewUserEventService(queries))
 	AchievementsHandler := handler.NewAchievementsHandler(queries)
 	userAchievementsHandler := handler.NewUserAchievementHandler(queries)
 	telegramAuthHandler := handler.NewTelegramAuthHandler(queries)

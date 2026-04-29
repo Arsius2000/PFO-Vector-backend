@@ -1,10 +1,50 @@
--- name: AddUserEvent :exec
-INSERT INTO user_events (
-    user_id,
-    event_id
+-- name: RegisterUserWithStatus :one
+WITH ev AS (
+  SELECT id, event_date, participants_current, participants_limit, end_time
+  FROM events
+  WHERE  events.id = sqlc.arg('event_id')
+  FOR UPDATE
+),
+attempt_insert AS (
+  INSERT INTO user_events (user_id, event_id)
+  SELECT sqlc.arg('user_id'), sqlc.arg('event_id')
+  FROM ev
+  WHERE (
+      ev.event_date > CURRENT_DATE
+      OR (
+        ev.event_date = CURRENT_DATE
+        AND COALESCE(ev.end_time, TIME '23:59:59') > LOCALTIME
+      )
+    )
+    AND ev.participants_current < ev.participants_limit
+  ON CONFLICT (user_id, event_id) DO NOTHING
+  RETURNING event_id
+),
+attempt_update AS (
+  UPDATE events
+  SET participants_current = participants_current + 1
+  WHERE id = (SELECT event_id FROM attempt_insert)
+  RETURNING id
 )
-VALUES ($1, $2)
-ON CONFLICT (user_id, event_id) DO NOTHING;
+SELECT 
+  CASE 
+    WHEN NOT EXISTS (SELECT 1 FROM ev) THEN 'NOT_FOUND'
+    WHEN EXISTS (SELECT 1 FROM attempt_update) THEN 'SUCCESS'
+    WHEN NOT EXISTS (
+      SELECT 1
+      FROM ev
+      WHERE (
+        ev.event_date > CURRENT_DATE
+        OR (
+          ev.event_date = CURRENT_DATE
+          AND COALESCE(ev.end_time, TIME '23:59:59') > LOCALTIME
+        )
+      )
+    ) THEN 'REGISTRATION_CLOSED'
+    WHEN NOT EXISTS (SELECT 1 FROM ev WHERE participants_current < participants_limit) THEN 'NO_VACANCY'
+    WHEN NOT EXISTS (SELECT 1 FROM attempt_insert) THEN 'ALREADY_REGISTERED'
+    ELSE 'UNKNOWN_ERROR'
+  END AS status;
 
 -- name: GetUserEventsByUserID :many
 SELECT e.*

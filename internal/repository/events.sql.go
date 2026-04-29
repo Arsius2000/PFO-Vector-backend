@@ -19,20 +19,24 @@ INSERT INTO events (
     title,
     audience,
     weight,
+    participants_limit ,
+    participants_current ,
     created_by
 )
-VALUES ($1, $2, $3, $4, $5, $6, $7)
-RETURNING id, event_date, start_time, end_time, title, audience, weight, created_by
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+RETURNING id, event_date, start_time, end_time, title, audience, weight, participants_limit, participants_current, created_by
 `
 
 type CreateEventParams struct {
-	EventDate pgtype.Date `json:"event_date"`
-	StartTime pgtype.Time `json:"start_time"`
-	EndTime   pgtype.Time `json:"end_time"`
-	Title     pgtype.Text `json:"title"`
-	Audience  pgtype.Text `json:"audience"`
-	Weight    pgtype.Int4 `json:"weight"`
-	CreatedBy int32       `json:"created_by"`
+	EventDate           pgtype.Date `json:"event_date"`
+	StartTime           pgtype.Time `json:"start_time"`
+	EndTime             pgtype.Time `json:"end_time"`
+	Title               pgtype.Text `json:"title"`
+	Audience            pgtype.Text `json:"audience"`
+	Weight              pgtype.Int4 `json:"weight"`
+	ParticipantsLimit   pgtype.Int4 `json:"participants_limit"`
+	ParticipantsCurrent pgtype.Int4 `json:"participants_current"`
+	CreatedBy           int32       `json:"created_by"`
 }
 
 func (q *Queries) CreateEvent(ctx context.Context, arg CreateEventParams) (Event, error) {
@@ -43,6 +47,8 @@ func (q *Queries) CreateEvent(ctx context.Context, arg CreateEventParams) (Event
 		arg.Title,
 		arg.Audience,
 		arg.Weight,
+		arg.ParticipantsLimit,
+		arg.ParticipantsCurrent,
 		arg.CreatedBy,
 	)
 	var i Event
@@ -54,6 +60,8 @@ func (q *Queries) CreateEvent(ctx context.Context, arg CreateEventParams) (Event
 		&i.Title,
 		&i.Audience,
 		&i.Weight,
+		&i.ParticipantsLimit,
+		&i.ParticipantsCurrent,
 		&i.CreatedBy,
 	)
 	return i, err
@@ -70,7 +78,7 @@ func (q *Queries) DeleteEvent(ctx context.Context, id int32) error {
 }
 
 const getEvent = `-- name: GetEvent :one
-SELECT id, event_date, start_time, end_time, title, audience, weight, created_by FROM events
+SELECT id, event_date, start_time, end_time, title, audience, weight, participants_limit, participants_current, created_by FROM events
 WHERE id = $1
 `
 
@@ -85,13 +93,15 @@ func (q *Queries) GetEvent(ctx context.Context, id int32) (Event, error) {
 		&i.Title,
 		&i.Audience,
 		&i.Weight,
+		&i.ParticipantsLimit,
+		&i.ParticipantsCurrent,
 		&i.CreatedBy,
 	)
 	return i, err
 }
 
 const getEventsByUser = `-- name: GetEventsByUser :many
-SELECT e.id, e.event_date, e.start_time, e.end_time, e.title, e.audience, e.weight, e.created_by FROM events e
+SELECT e.id, e.event_date, e.start_time, e.end_time, e.title, e.audience, e.weight, e.participants_limit, e.participants_current, e.created_by FROM events e
 WHERE e.created_by = $1
 ORDER BY e.event_date DESC
 LIMIT $3
@@ -121,6 +131,8 @@ func (q *Queries) GetEventsByUser(ctx context.Context, arg GetEventsByUserParams
 			&i.Title,
 			&i.Audience,
 			&i.Weight,
+			&i.ParticipantsLimit,
+			&i.ParticipantsCurrent,
 			&i.CreatedBy,
 		); err != nil {
 			return nil, err
@@ -134,7 +146,7 @@ func (q *Queries) GetEventsByUser(ctx context.Context, arg GetEventsByUserParams
 }
 
 const listEventsByFilter = `-- name: ListEventsByFilter :many
-SELECT id, event_date, start_time, end_time, title, audience, weight, created_by
+SELECT id, event_date, start_time, end_time, title, audience, weight, participants_limit, participants_current, created_by
 FROM events
 WHERE
   $1::text = 'all'
@@ -188,6 +200,8 @@ func (q *Queries) ListEventsByFilter(ctx context.Context, arg ListEventsByFilter
 			&i.Title,
 			&i.Audience,
 			&i.Weight,
+			&i.ParticipantsLimit,
+			&i.ParticipantsCurrent,
 			&i.CreatedBy,
 		); err != nil {
 			return nil, err
@@ -201,7 +215,7 @@ func (q *Queries) ListEventsByFilter(ctx context.Context, arg ListEventsByFilter
 }
 
 const listEventsDate = `-- name: ListEventsDate :many
-SELECT id, event_date, start_time, end_time, title, audience, weight, created_by
+SELECT id, event_date, start_time, end_time, title, audience, weight, participants_limit, participants_current, created_by
 FROM events
 ORDER BY event_date ASC 
 LIMIT $2
@@ -230,6 +244,8 @@ func (q *Queries) ListEventsDate(ctx context.Context, arg ListEventsDateParams) 
 			&i.Title,
 			&i.Audience,
 			&i.Weight,
+			&i.ParticipantsLimit,
+			&i.ParticipantsCurrent,
 			&i.CreatedBy,
 		); err != nil {
 			return nil, err
@@ -243,7 +259,7 @@ func (q *Queries) ListEventsDate(ctx context.Context, arg ListEventsDateParams) 
 }
 
 const listEventsId = `-- name: ListEventsId :many
-SELECT id, event_date, start_time, end_time, title, audience, weight, created_by
+SELECT id, event_date, start_time, end_time, title, audience, weight, participants_limit, participants_current, created_by
 FROM events
 ORDER BY id ASC 
 LIMIT $2
@@ -272,6 +288,8 @@ func (q *Queries) ListEventsId(ctx context.Context, arg ListEventsIdParams) ([]E
 			&i.Title,
 			&i.Audience,
 			&i.Weight,
+			&i.ParticipantsLimit,
+			&i.ParticipantsCurrent,
 			&i.CreatedBy,
 		); err != nil {
 			return nil, err
@@ -285,7 +303,7 @@ func (q *Queries) ListEventsId(ctx context.Context, arg ListEventsIdParams) ([]E
 }
 
 const listEventsTitle = `-- name: ListEventsTitle :many
-SELECT id, event_date, start_time, end_time, title, audience, weight, created_by
+SELECT id, event_date, start_time, end_time, title, audience, weight, participants_limit, participants_current, created_by
 FROM events
 ORDER BY title ASC 
 LIMIT $2
@@ -314,6 +332,8 @@ func (q *Queries) ListEventsTitle(ctx context.Context, arg ListEventsTitleParams
 			&i.Title,
 			&i.Audience,
 			&i.Weight,
+			&i.ParticipantsLimit,
+			&i.ParticipantsCurrent,
 			&i.CreatedBy,
 		); err != nil {
 			return nil, err
@@ -336,7 +356,7 @@ SET
     audience = COALESCE($6, audience),
     weight = COALESCE($7, weight)
 WHERE id = $1
-RETURNING id, event_date, start_time, end_time, title, audience, weight, created_by
+RETURNING id, event_date, start_time, end_time, title, audience, weight, participants_limit, participants_current, created_by
 `
 
 type UpdateEventParams struct {
@@ -368,6 +388,8 @@ func (q *Queries) UpdateEvent(ctx context.Context, arg UpdateEventParams) (Event
 		&i.Title,
 		&i.Audience,
 		&i.Weight,
+		&i.ParticipantsLimit,
+		&i.ParticipantsCurrent,
 		&i.CreatedBy,
 	)
 	return i, err
