@@ -145,7 +145,7 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	user, err := h.queries.CreateUser(ctx, args)
 	if err != nil {
 		if pgErr, ok := err.(*pgconn.PgError); ok && pgErr.Code == "23505" {
-			http.Error(w, "Пользователь с таким telegram_id уже существует", http.StatusConflict)
+			http.Error(w, "Пользователь с таким telegram уже существует", http.StatusConflict)
 			return
 		}
 		http.Error(w, "Ошибка сервера: "+err.Error(), http.StatusInternalServerError)

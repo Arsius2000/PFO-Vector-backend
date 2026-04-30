@@ -1,7 +1,7 @@
 package service
 
 import (
-	// "context"
+	"context"
 	"pfo-vector/internal/repository"
 
 	"github.com/redis/go-redis/v9"
@@ -24,3 +24,6 @@ func NewNotificationPublisherService(rdb *redis.Client,queries *repository.Queri
 }
 
 
+func (s *NotificationPublisherService)PublishPendingNotifications(ctx context.Context,rdb *redis.Client){
+	
+}
