@@ -153,38 +153,44 @@ WHERE
   OR (
     $1::text = 'past'
     AND (
-      event_date < CURRENT_DATE
-      OR (event_date = CURRENT_DATE AND COALESCE(end_time, TIME '23:59:59') < LOCALTIME)
+      event_date < ($2::timestamptz AT TIME ZONE 'Europe/Moscow')::date
+      OR (event_date = CURRENT_DATE AND COALESCE(end_time, TIME '23:59:59') < ($2::timestamptz AT TIME ZONE 'Europe/Moscow')::time)
     )
   )
   OR (
     $1::text = 'ongoing'
     AND (
-      event_date = CURRENT_DATE
-      AND COALESCE(start_time, TIME '00:00:00') <= LOCALTIME
-      AND COALESCE(end_time, TIME '23:59:59') >= LOCALTIME
+      event_date = ($2::timestamptz AT TIME ZONE 'Europe/Moscow')::date
+      AND COALESCE(start_time, TIME '00:00:00') <= ($2::timestamptz AT TIME ZONE 'Europe/Moscow')::time
+      AND COALESCE(end_time, TIME '23:59:59') >= ($2::timestamptz AT TIME ZONE 'Europe/Moscow')::time
     )
   )
   OR (
     $1::text = 'upcoming'
     AND (
-      event_date > CURRENT_DATE
-      OR (event_date = CURRENT_DATE AND COALESCE(start_time, TIME '00:00:00') > LOCALTIME)
+      event_date > ($2::timestamptz AT TIME ZONE 'Europe/Moscow')::date
+      OR (event_date = ($2::timestamptz AT TIME ZONE 'Europe/Moscow')::date AND COALESCE(start_time, TIME '00:00:00') > ($2::timestamptz AT TIME ZONE 'Europe/Moscow')::time)
     )
   )
 ORDER BY event_date ASC, start_time ASC
-LIMIT $3
-OFFSET $2
+LIMIT $4
+OFFSET $3
 `
 
 type ListEventsByFilterParams struct {
-	Filter string `json:"filter"`
-	Offset int32  `json:"offset"`
-	Limit  int32  `json:"limit"`
+	Filter      string             `json:"filter"`
+	CurrentTime pgtype.Timestamptz `json:"current_time"`
+	Offset      int32              `json:"offset"`
+	Limit       int32              `json:"limit"`
 }
 
 func (q *Queries) ListEventsByFilter(ctx context.Context, arg ListEventsByFilterParams) ([]Event, error) {
-	rows, err := q.db.Query(ctx, listEventsByFilter, arg.Filter, arg.Offset, arg.Limit)
+	rows, err := q.db.Query(ctx, listEventsByFilter,
+		arg.Filter,
+		arg.CurrentTime,
+		arg.Offset,
+		arg.Limit,
+	)
 	if err != nil {
 		return nil, err
 	}

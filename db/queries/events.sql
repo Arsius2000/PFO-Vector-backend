@@ -46,23 +46,23 @@ WHERE
   OR (
     sqlc.arg('filter')::text = 'past'
     AND (
-      event_date < CURRENT_DATE
-      OR (event_date = CURRENT_DATE AND COALESCE(end_time, TIME '23:59:59') < LOCALTIME)
+      event_date < (sqlc.arg('current_time')::timestamptz AT TIME ZONE 'Europe/Moscow')::date
+      OR (event_date = CURRENT_DATE AND COALESCE(end_time, TIME '23:59:59') < (sqlc.arg('current_time')::timestamptz AT TIME ZONE 'Europe/Moscow')::time)
     )
   )
   OR (
     sqlc.arg('filter')::text = 'ongoing'
     AND (
-      event_date = CURRENT_DATE
-      AND COALESCE(start_time, TIME '00:00:00') <= LOCALTIME
-      AND COALESCE(end_time, TIME '23:59:59') >= LOCALTIME
+      event_date = (sqlc.arg('current_time')::timestamptz AT TIME ZONE 'Europe/Moscow')::date
+      AND COALESCE(start_time, TIME '00:00:00') <= (sqlc.arg('current_time')::timestamptz AT TIME ZONE 'Europe/Moscow')::time
+      AND COALESCE(end_time, TIME '23:59:59') >= (sqlc.arg('current_time')::timestamptz AT TIME ZONE 'Europe/Moscow')::time
     )
   )
   OR (
     sqlc.arg('filter')::text = 'upcoming'
     AND (
-      event_date > CURRENT_DATE
-      OR (event_date = CURRENT_DATE AND COALESCE(start_time, TIME '00:00:00') > LOCALTIME)
+      event_date > (sqlc.arg('current_time')::timestamptz AT TIME ZONE 'Europe/Moscow')::date
+      OR (event_date = (sqlc.arg('current_time')::timestamptz AT TIME ZONE 'Europe/Moscow')::date AND COALESCE(start_time, TIME '00:00:00') > (sqlc.arg('current_time')::timestamptz AT TIME ZONE 'Europe/Moscow')::time)
     )
   )
 ORDER BY event_date ASC, start_time ASC

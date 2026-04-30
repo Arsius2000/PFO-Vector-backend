@@ -192,6 +192,8 @@ func (h *EventHandler) ListEventsId(w http.ResponseWriter, r *http.Request) {
 		filter = "all"
 	}
 
+
+
 	switch filter {
 	case "all", "past", "ongoing", "upcoming":
 		// ok
@@ -223,11 +225,15 @@ func (h *EventHandler) ListEventsId(w http.ResponseWriter, r *http.Request) {
 	// Расчет OFFSET: (page - 1) * limit
 	offset := (page - 1) * limit
 
+	loc, _ := time.LoadLocation("Europe/Moscow")
+	now := time.Now().In(loc)
+	ts := pgtype.Timestamptz{Time: now, Valid: true}
 	// 2. Подготовка аргументов для sqlc
 	// sqlc сгенерирует типы int32 или int64 в зависимости от вашей БД.
 	// Обычно для LIMIT/OFFSET подходит int32, но проверьте сгенерированный код.
 	args := repository.ListEventsByFilterParams{
 		Filter: filter,
+		CurrentTime: ts,
 		Limit:  int32(limit),
 		Offset: int32(offset),
 	}
