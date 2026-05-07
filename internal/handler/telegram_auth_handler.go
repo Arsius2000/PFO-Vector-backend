@@ -71,38 +71,57 @@ func (h *TelegramAuthHandler) TelegramAuth(w http.ResponseWriter, r *http.Reques
 	// 	http.Error(w, "telegram_id обязателен и должен быть положительным", http.StatusBadRequest)
 	// 	return
 	// }
-	if strings.TrimSpace(req.Username) == "" {
-		http.Error(w, "username обязателен", http.StatusBadRequest)
+	if strings.TrimSpace(req.PhoneNumber) == "" {
+		http.Error(w, "phone_number обязателен", http.StatusBadRequest)
 		return
 	}
 
-	// 
+
+
 	var user repository.User
 	var err error
-	//ЕСли телеграм id не равен нулю ищем по TelegramID
-	if req.TelegramID!=0{
-		user, err = h.queries.GetUserByTelegramID(ctx, pgtype.Int4{Int32: int32(req.TelegramID), Valid: true})
-		if err != nil {
-			 
-			http.Error(w, "Ошибка сервера", http.StatusInternalServerError)
-			return
-		}
-	
-	}
 
-	//ЕСли равен 0 ,то ищем по @USErname
-	user, err = h.queries.GetUserByTelegramUsername(ctx, req.Username)
+	// 1. Попытка по телефону
+	user, err = h.queries.GetUserByPhoneNumber(ctx, req.PhoneNumber)
 	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			http.Error(w, "Пользователь не найден", http.StatusUnauthorized)
+		// Если это не "запись не найдена", а реальная ошибка БД
+		if !errors.Is(err, pgx.ErrNoRows) {
+			http.Error(w, "Ошибка сервера (Phone)", http.StatusInternalServerError)
 			return
 		}
-		http.Error(w, "Ошибка сервера", http.StatusInternalServerError)
-		return
+		
+		// 2. Попытка по Username
+		user, err = h.queries.GetUserByTelegramUsername(ctx, req.Username)
+		if err != nil {
+			if !errors.Is(err, pgx.ErrNoRows) {
+				http.Error(w, "Ошибка сервера (Username)", http.StatusInternalServerError)
+				return
+			}
+			
+			// 3. Попытка по TelegramID (если он не 0)
+			if req.TelegramID != 0 {
+				user, err = h.queries.GetUserByTelegramID(ctx, pgtype.Int4{Int32: int32(req.TelegramID), Valid: true})
+				if err != nil {
+					if !errors.Is(err, pgx.ErrNoRows) {
+						http.Error(w, "Ошибка сервера (TG ID)", http.StatusInternalServerError)
+						return
+					}
+					// Если дошли сюда и err == ErrNoRows, значит пользователь вообще не найден
+					http.Error(w, "Пользователь не найден2", http.StatusUnauthorized)
+					return
+				}
+			} else {
+				http.Error(w, "Пользователь не найден3", http.StatusUnauthorized)
+				return
+			}
+		}
 	}
 
-	user,err = h.queries.GetUserByPhoneNumber(ctx,req.PhoneNumber)
 	
+	
+
+
+
 	// Закоментил на момент тестов
 	// 4. Обновляем telegram-данные существующего пользователя
 	// updateParams := repository.UpdateUserTelegramDataParams{
@@ -117,7 +136,7 @@ func (h *TelegramAuthHandler) TelegramAuth(w http.ResponseWriter, r *http.Reques
 	// 	return
 	// }
 
-	// 5. Генерируем JWT токен
+	// 5. Генерируем временый код
 	code, err := service.GenerateCode()
 	if err != nil {
 		http.Error(w, "Ошибка генерации токена", http.StatusInternalServerError)
