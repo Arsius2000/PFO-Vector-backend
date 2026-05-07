@@ -4,27 +4,32 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
-	"os"
+
 	"strings"
 	"time"
 
+	"pfo-vector/internal/model"
 	"pfo-vector/internal/repository"
+	"pfo-vector/internal/service"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/golang-jwt/jwt/v5"
+
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/redis/go-redis/v9"
 )
 
 // TelegramAuthHandler обрабатывает авторизацию через Telegram бота
 type TelegramAuthHandler struct {
 	queries *repository.Queries
+	rdb *redis.Client
 }
 
 // NewTelegramAuthHandler создаёт новый хендлер
-func NewTelegramAuthHandler(queries *repository.Queries) *TelegramAuthHandler {
+func NewTelegramAuthHandler(queries *repository.Queries,rdb *redis.Client) *TelegramAuthHandler {
 	return &TelegramAuthHandler{
 		queries: queries,
+		rdb:rdb,
 	}
 }
 
@@ -35,20 +40,7 @@ type TelegramAuthRequest struct {
 	PhoneNumber string `json:"phone_number"`
 }
 
-// TelegramAuthResponse — ответ сервера
-type TelegramAuthResponse struct {
-	Token   string `json:"token"`
-	UserID  int32  `json:"user_id"`
-	Status  string `json:"status"`
-	Message string `json:"message,omitempty"`
-}
 
-type TelegramCheckResponse struct {
-	Exists  bool   `json:"exists"`
-	UserID  int32  `json:"user_id,omitempty"`
-	Status  string `json:"status"`
-	Message string `json:"message,omitempty"`
-}
 
 // TelegramAuth godoc
 // @Summary      Авторизация через Telegram
@@ -122,16 +114,22 @@ func (h *TelegramAuthHandler) TelegramAuth(w http.ResponseWriter, r *http.Reques
 	// }
 
 	// 5. Генерируем JWT токен
-	token, err := generateJWT(user.ID, user.TelegramID.Int32,user.Role.String)
+	code, err := service.GenerateCode()
 	if err != nil {
 		http.Error(w, "Ошибка генерации токена", http.StatusInternalServerError)
 		return
 	}
 
+	// Сохраняем код в Redis: ключ = code, значение = userID, время жизни = 5 минут
+	err = h.rdb.Set(ctx, code, user.ID, 5*time.Minute).Err()
+	if err != nil {
+		http.Error(w, "Ошибка сохранения кода", http.StatusInternalServerError)
+		return
+	}
 	
 	// 6. Формируем ответ
-	response := TelegramAuthResponse{
-		Token:   token,
+	response := model.TelegramAuthResponse{
+		Token:   code,
 		UserID:  user.ID,
 		Status:  "success",
 		Message: "Авторизация успешна",
@@ -143,17 +141,17 @@ func (h *TelegramAuthHandler) TelegramAuth(w http.ResponseWriter, r *http.Reques
 	json.NewEncoder(w).Encode(response)
 }
 
-// CheckTelegramUsername godoc
-// @Summary      Проверка существования пользователя по telegram_username
-// @Description  Проверяет, существует ли пользователь по telegram username
+// CheckPhoneNumber godoc
+// @Summary      Проверка существования пользователя по номеру телефона
+// @Description  Проверяет, существует ли пользователь по номеру телефона
 // @Tags         auth
 // @Accept       json
 // @Produce      json
-// @Param        telegram_username   path      string  true  "Telegram username"
+// @Param        phone_number   path      string  true  "Phone Number"
 // @Success      200  {object}  handler.TelegramCheckResponse  "Результат проверки"
 // @Failure      500  {string}  string  "Ошибка сервера"
-// @Router       /auth/check/{telegram_username} [get]
-func (h *TelegramAuthHandler) CheckTelegramUsername(w http.ResponseWriter, r *http.Request) {
+// @Router       /auth/check/{Phone_number} [get]
+func (h *TelegramAuthHandler) CheckPhoneNumber(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	username := strings.TrimSpace(chi.URLParam(r, "telegram_username"))
 	if username == "" {
@@ -166,7 +164,7 @@ func (h *TelegramAuthHandler) CheckTelegramUsername(w http.ResponseWriter, r *ht
 		if errors.Is(err, pgx.ErrNoRows) {
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusOK)
-			_ = json.NewEncoder(w).Encode(TelegramCheckResponse{
+			_ = json.NewEncoder(w).Encode(model.TelegramCheckResponse{
 				Exists:  false,
 				Status:  "not_found",
 				Message: "Пользователь не найден",
@@ -179,7 +177,7 @@ func (h *TelegramAuthHandler) CheckTelegramUsername(w http.ResponseWriter, r *ht
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	_ = json.NewEncoder(w).Encode(TelegramCheckResponse{
+	_ = json.NewEncoder(w).Encode(model.TelegramCheckResponse{
 		Exists:  true,
 		UserID:  user.ID,
 		Status:  "found",
@@ -188,24 +186,5 @@ func (h *TelegramAuthHandler) CheckTelegramUsername(w http.ResponseWriter, r *ht
 }
 
 
-// generateJWT создаёт JWT токен для пользователя
-func generateJWT(userID int32, telegramID int32,role string) (string, error) {
-	// Берём секрет из переменных окружения
-	secret := os.Getenv("JWT_SECRET")
-	if secret == "" {
-		secret = "dev_secret_key_change_me" // fallback для разработки
-	}
 
-	// Создаём claims (данные внутри токена)
-	claims := jwt.MapClaims{
-		"user_id":     userID,
-		"telegram_id": telegramID,
-		"role":			role,
-		"exp":         time.Now().Add(240 * time.Hour).Unix(), // Токен живёт 24 часа
-		"issued_at":   time.Now().Unix(),
-	}
 
-	// Создаём и подписываем токен
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString([]byte(secret))
-}

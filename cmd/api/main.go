@@ -8,7 +8,7 @@ import (
 	"strconv"
 
 	"pfo-vector/internal/handler"
-	"pfo-vector/internal/middleware"
+	// "pfo-vector/internal/middleware"
 	db "pfo-vector/internal/repository"
 	"pfo-vector/internal/service"
 
@@ -87,7 +87,7 @@ func main() {
 	userEventHandler := handler.NewUserEventHandler(queries,service.NewUserEventService(queries))
 	AchievementsHandler := handler.NewAchievementsHandler(queries)
 	userAchievementsHandler := handler.NewUserAchievementHandler(queries)
-	telegramAuthHandler := handler.NewTelegramAuthHandler(queries)
+	telegramAuthHandler := handler.NewTelegramAuthHandler(queries,rdb)
     
     //РУЧКИ
     r := chi.NewRouter()
@@ -109,7 +109,7 @@ func main() {
 	}
 
 	r.Group(func(r chi.Router) {
-		r.Use(middleware.JWTAuth(secret))
+		// r.Use(middleware.JWTAuth(secret))
 
 		
 		r.Post("/users/import-users",userHandler.ImportUsers)
