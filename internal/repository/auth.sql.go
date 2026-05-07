@@ -11,6 +11,33 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const getUserByPhoneNumber = `-- name: GetUserByPhoneNumber :one
+SELECT id, full_name, gender, direction_vector, study_group, rating, visited_events_count, phone_number, telegram, avatar_url, join_date, role, telegram_id FROM users
+WHERE phone_number = $1
+LIMIT 1
+`
+
+func (q *Queries) GetUserByPhoneNumber(ctx context.Context, phoneNumber string) (User, error) {
+	row := q.db.QueryRow(ctx, getUserByPhoneNumber, phoneNumber)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.FullName,
+		&i.Gender,
+		&i.DirectionVector,
+		&i.StudyGroup,
+		&i.Rating,
+		&i.VisitedEventsCount,
+		&i.PhoneNumber,
+		&i.Telegram,
+		&i.AvatarUrl,
+		&i.JoinDate,
+		&i.Role,
+		&i.TelegramID,
+	)
+	return i, err
+}
+
 const getUserByTelegramID = `-- name: GetUserByTelegramID :one
 SELECT id, full_name, gender, direction_vector, study_group, rating, visited_events_count, phone_number, telegram, avatar_url, join_date, role, telegram_id FROM users
 WHERE telegram_id = $1

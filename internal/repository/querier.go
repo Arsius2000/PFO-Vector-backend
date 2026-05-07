@@ -28,6 +28,7 @@ type Querier interface {
 	GetPendingNotificationsBatch(ctx context.Context, limit int32) ([]Notification, error)
 	GetUser(ctx context.Context, id int32) (User, error)
 	GetUserAchievementsByUserID(ctx context.Context, arg GetUserAchievementsByUserIDParams) ([]Achievement, error)
+	GetUserByPhoneNumber(ctx context.Context, phoneNumber string) (User, error)
 	GetUserByTelegramID(ctx context.Context, telegramID pgtype.Int4) (User, error)
 	GetUserByTelegramUsername(ctx context.Context, telegram string) (User, error)
 	GetUserEventsByUserID(ctx context.Context, arg GetUserEventsByUserIDParams) ([]Event, error)

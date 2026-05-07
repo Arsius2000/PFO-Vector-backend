@@ -33,10 +33,7 @@ func (s *UserImportService) ImportFromExcel(ctx context.Context, file multipart.
 		args := repository.CreateUserParams{
 			FullName: row.FullName,
 			Telegram: row.Telegram,
-			PhoneNumber: pgtype.Text{
-				String: row.PhoneNumber,
-				Valid:  row.PhoneNumber != "", // false => NULL в БД
-			},
+			PhoneNumber: row.PhoneNumber,
 			Gender: pgtype.Text{
 				String: row.Gender,
 				Valid: row.Gender!="",

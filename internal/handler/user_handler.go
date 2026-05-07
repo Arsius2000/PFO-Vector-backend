@@ -52,7 +52,7 @@ type CreateUserRequest struct {
 	StudyGroup         *string `json:"study_group,omitempty" example:"ЭФБО-05-25"`
 	Rating             *int32  `json:"rating,omitempty"`             // Если nil -> БД поставит 0
 	VisitedEventsCount *int32  `json:"visited_events_count,omitempty"` // Если nil -> БД поставит 0
-	PhoneNumber        *string `json:"phone_number,omitempty" example:"89889993556"`
+	PhoneNumber        string `json:"phone_number,omitempty" example:"89889993556"`
 	Telegram           string  `json:"telegram" example:"@Ivan337"`                     // Обязательно (NOT NULL в БД)
 	AvatarURL          *string `json:"avatar_url,omitempty"`
        // UNIQUE в БД
@@ -91,11 +91,25 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Поле telegram обязательно", http.StatusBadRequest)
 		return
 	}
-	err := service.ValidationTelegramUsername(req.Telegram)
+	if strings.TrimSpace(req.PhoneNumber) == "" {
+		http.Error(w, "Поле phone_number обязательно", http.StatusBadRequest)
+		return
+	}
+
+		//Приводит номера телефонов к единому виду
+    normalized, err := service.NormalizePhone(req.PhoneNumber)
+    if err != nil {
+        http.Error(w, "Некорректный phone_number" + err.Error(), http.StatusBadRequest)
+        return
+    	}
+	
+
+	err = service.ValidationTelegramUsername(req.Telegram)
 	if err!=nil{
 		http.Error(w,"Неккоректный telegram "+err.Error(),http.StatusBadRequest)
 		return
 	}
+
 	telegram := strings.TrimPrefix(req.Telegram, "@")
 
 	// --- ХЕЛПЕРЫ ДЛЯ PGTYPE ---
@@ -115,17 +129,6 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 		}
 		return pgtype.Int4{Int32: *i, Valid: true}
 	}
-	//Приводит номера телефонов к единому виду
-	if req.PhoneNumber != nil {
-    normalized, err := service.NormalizePhone(*req.PhoneNumber)
-    if err != nil {
-        http.Error(w, "Некорректный phone_number" + err.Error(), http.StatusBadRequest)
-        return
-    }
-
-	
-    req.PhoneNumber = &normalized
-	}
 	// --- СБОРКА ПАРАМЕТРОВ ---
 
 	args := repository.CreateUserParams{
@@ -135,7 +138,7 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 		StudyGroup:         nullText(req.StudyGroup),
 		Rating:             nullInt4(req.Rating),        // pgtype.Int4
 		VisitedEventsCount: nullInt4(req.VisitedEventsCount),
-		PhoneNumber:        nullText(req.PhoneNumber),
+		PhoneNumber:       	normalized,
 		Telegram:           telegram,                // string (NOT NULL в БД)
 		AvatarUrl:          nullText(req.AvatarURL),     // <--- Исправленное имя поля!
 

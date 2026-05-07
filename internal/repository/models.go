@@ -63,7 +63,7 @@ type User struct {
 	StudyGroup         pgtype.Text        `json:"study_group"`
 	Rating             pgtype.Int4        `json:"rating"`
 	VisitedEventsCount pgtype.Int4        `json:"visited_events_count"`
-	PhoneNumber        pgtype.Text        `json:"phone_number"`
+	PhoneNumber        string             `json:"phone_number"`
 	Telegram           string             `json:"telegram"`
 	AvatarUrl          pgtype.Text        `json:"avatar_url"`
 	JoinDate           pgtype.Timestamptz `json:"join_date"`

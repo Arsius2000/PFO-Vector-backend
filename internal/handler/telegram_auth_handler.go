@@ -3,6 +3,7 @@ package handler
 import (
 	"encoding/json"
 	"errors"
+	"log"
 	"net/http"
 	"strconv"
 
@@ -99,6 +100,8 @@ func (h *TelegramAuthHandler) TelegramAuth(w http.ResponseWriter, r *http.Reques
 		http.Error(w, "Ошибка сервера", http.StatusInternalServerError)
 		return
 	}
+
+	user,err = h.queries.GetUserByPhoneNumber(ctx,req.PhoneNumber)
 	
 	// Закоментил на момент тестов
 	// 4. Обновляем telegram-данные существующего пользователя
@@ -154,13 +157,13 @@ func (h *TelegramAuthHandler) TelegramAuth(w http.ResponseWriter, r *http.Reques
 // @Router       /auth/check/{phone_number} [get]
 func (h *TelegramAuthHandler) CheckPhoneNumber(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	username := strings.TrimSpace(chi.URLParam(r, "telegram_username"))
-	if username == "" {
-		http.Error(w, "telegram_username обязателен", http.StatusBadRequest)
+	phone := strings.TrimSpace(chi.URLParam(r, "phone_number"))
+	if phone == "" {
+		http.Error(w, "phone_number обязателен", http.StatusBadRequest)
 		return
 	}
-
-	user, err := h.queries.GetUserByTelegramUsername(ctx, username)
+	log.Println(phone)
+	user, err := h.queries.GetUserByPhoneNumber(ctx, phone)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			w.Header().Set("Content-Type", "application/json")

@@ -25,12 +25,6 @@ func MapUserFromRepo(u repository.User) UserResponse {
         studyGroup = &v
     }
 
-    var phoneNumber *string
-    if u.PhoneNumber.Valid {
-        v := u.PhoneNumber.String
-        phoneNumber = &v
-    }
-
     var avatarURL *string
     if u.AvatarUrl.Valid {
         v := u.AvatarUrl.String
@@ -72,7 +66,7 @@ func MapUserFromRepo(u repository.User) UserResponse {
         StudyGroup:         studyGroup,
         Rating:             rating,
         VisitedEventsCount: visited,
-        PhoneNumber:        phoneNumber,
+        PhoneNumber:        &u.PhoneNumber,
         Telegram:           u.Telegram,
         AvatarURL:          avatarURL,
         Role:               role,

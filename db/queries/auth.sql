@@ -8,6 +8,11 @@ SELECT * FROM users
 WHERE telegram = sqlc.arg('telegram')
 LIMIT 1;
 
+-- name: GetUserByPhoneNumber :one
+SELECT * FROM users
+WHERE phone_number = sqlc.arg('phone_number')
+LIMIT 1;
+
 -- name: UpdateUserTelegramData :one
 UPDATE users
 SET 
