@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
+	"strconv"
 
 	"strings"
 	"time"
@@ -49,7 +50,7 @@ type TelegramAuthRequest struct {
 // @Accept       json
 // @Produce      json
 // @Param        request  body  handler.TelegramAuthRequest  true  "Данные от Телеграм-бота"
-// @Success      200  {object}  handler.TelegramAuthResponse  "Успешная авторизация"
+// @Success      200  {object}  model.TelegramAuthResponse  "Успешная авторизация"
 // @Failure      400  {string}  string  "Неверный формат запроса"
 // @Failure      401  {string}  string  "Пользователь не найден"
 // @Failure      500  {string}  string  "Ошибка сервера"
@@ -148,9 +149,9 @@ func (h *TelegramAuthHandler) TelegramAuth(w http.ResponseWriter, r *http.Reques
 // @Accept       json
 // @Produce      json
 // @Param        phone_number   path      string  true  "Phone Number"
-// @Success      200  {object}  handler.TelegramCheckResponse  "Результат проверки"
+// @Success      200  {object}  model.TelegramCheckResponse  "Результат проверки"
 // @Failure      500  {string}  string  "Ошибка сервера"
-// @Router       /auth/check/{Phone_number} [get]
+// @Router       /auth/check/{phone_number} [get]
 func (h *TelegramAuthHandler) CheckPhoneNumber(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	username := strings.TrimSpace(chi.URLParam(r, "telegram_username"))
@@ -188,3 +189,70 @@ func (h *TelegramAuthHandler) CheckPhoneNumber(w http.ResponseWriter, r *http.Re
 
 
 
+// ExchangeCode godoc
+// @Summary      Обмен кода на JWT (в HttpOnly Cookie)
+// @Tags         auth
+// @Accept       json
+// @Produce      json
+// @Param        code path string true "Временный код"
+// @Success      200 {string} string "Успешно, JWT в cookie"
+// @Failure      400 {string} string "Неверный код"
+// @Router       /auth/exchange-code/{code} [get]
+func (h *TelegramAuthHandler) ExchangeCode(w http.ResponseWriter, r *http.Request) {
+    ctx := r.Context()
+    
+    code := chi.URLParam(r, "code") 
+    
+    if code == "" {
+        http.Error(w, "Код не найден в URL", http.StatusBadRequest)
+        return
+    }
+
+    // 2. Ищем этот код в Redis
+    userIDStr, err := h.rdb.Get(ctx, code).Result()
+    if err != nil {
+        http.Error(w, "Код не найден или истек", http.StatusBadRequest)
+        return
+    }
+	userId,err := strconv.ParseInt(userIDStr,10,32)
+    if err!=nil{
+		http.Error(w,"Неверный формат ID",http.StatusBadRequest)
+	}
+    // 3. Удаляем код (одноразовый)
+    h.rdb.Del(ctx, code)
+    
+    // 4. Получаем юзера 
+	user,err := h.queries.GetUser(ctx,int32(userId))
+    
+    // 5. Генерируем JWT
+    token, err := service.GenerateJWT(int32(userId),user.TelegramID.Int32,user.Role.String)  
+	if err != nil {
+		http.Error(w, "Ошибка генерации токена", http.StatusInternalServerError)
+		return
+	}  
+    // 6. Устанавливаем HttpOnly Cookie
+    // http.SetCookie(w, &http.Cookie{
+    //     Name:     "jwt_token",
+    //     Value:    token,
+    //     Path:     "/",
+    //     MaxAge:   86400, // 24 часа
+    //     HttpOnly: true,  // <-- JS не может прочитать!
+    //     Secure:   false, // true, если используете HTTPS
+    // })
+
+
+	response := model.TelegramAuthResponse{
+		Token:   token,
+		UserID:  user.ID,
+		Status:  "success",
+		Message: "Авторизация успешна",
+	}
+
+	// 7. Отправляем ответ
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(response)
+    
+    // w.WriteHeader(http.StatusOK)
+    w.Write([]byte("Авторизация успешна"))
+}

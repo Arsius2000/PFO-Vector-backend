@@ -162,9 +162,9 @@ const docTemplate = `{
                 }
             }
         },
-        "/auth/check/{telegram_username}": {
+        "/auth/check/{phone_number}": {
             "get": {
-                "description": "Проверяет, существует ли пользователь по telegram username",
+                "description": "Проверяет, существует ли пользователь по номеру телефона",
                 "consumes": [
                     "application/json"
                 ],
@@ -174,12 +174,12 @@ const docTemplate = `{
                 "tags": [
                     "auth"
                 ],
-                "summary": "Проверка существования пользователя по telegram_username",
+                "summary": "Проверка существования пользователя по номеру телефона",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Telegram username",
-                        "name": "telegram_username",
+                        "description": "Phone Number",
+                        "name": "phone_number",
                         "in": "path",
                         "required": true
                     }
@@ -188,11 +188,48 @@ const docTemplate = `{
                     "200": {
                         "description": "Результат проверки",
                         "schema": {
-                            "$ref": "#/definitions/internal_handler.TelegramCheckResponse"
+                            "$ref": "#/definitions/pfo-vector_internal_model.TelegramCheckResponse"
                         }
                     },
                     "500": {
                         "description": "Ошибка сервера",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/exchange-code/{code}": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Обмен кода на JWT (в HttpOnly Cookie)",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Временный код",
+                        "name": "code",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Успешно, JWT в cookie",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный код",
                         "schema": {
                             "type": "string"
                         }
@@ -228,7 +265,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Успешная авторизация",
                         "schema": {
-                            "$ref": "#/definitions/internal_handler.TelegramAuthResponse"
+                            "$ref": "#/definitions/pfo-vector_internal_model.TelegramAuthResponse"
                         }
                     },
                     "400": {
@@ -1149,40 +1186,6 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_handler.TelegramAuthResponse": {
-            "type": "object",
-            "properties": {
-                "message": {
-                    "type": "string"
-                },
-                "status": {
-                    "type": "string"
-                },
-                "token": {
-                    "type": "string"
-                },
-                "user_id": {
-                    "type": "integer"
-                }
-            }
-        },
-        "internal_handler.TelegramCheckResponse": {
-            "type": "object",
-            "properties": {
-                "exists": {
-                    "type": "boolean"
-                },
-                "message": {
-                    "type": "string"
-                },
-                "status": {
-                    "type": "string"
-                },
-                "user_id": {
-                    "type": "integer"
-                }
-            }
-        },
         "internal_handler.UpdateUserRequest": {
             "type": "object",
             "properties": {
@@ -1334,6 +1337,40 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "row": {
+                    "type": "integer"
+                }
+            }
+        },
+        "pfo-vector_internal_model.TelegramAuthResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "token": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "pfo-vector_internal_model.TelegramCheckResponse": {
+            "type": "object",
+            "properties": {
+                "exists": {
+                    "type": "boolean"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "user_id": {
                     "type": "integer"
                 }
             }
